@@ -5,21 +5,33 @@ from django.contrib import admin
 # Create your models here.
 class FrontCard(models.Model):
     front_id = models.AutoField(primary_key=True)
+    # 句子、图片、视频、音频
     front_card_content = models.TextField()
+    # 句子0、图片1、视频2、音频3
+    content_type = models.IntegerField(default=0)
+    # 翻译
     description = models.TextField()
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+    # 复习次数，如果记错了，重置为0
     repeat_num = models.IntegerField(default=0)
+    # 下次学习时间
     next_study_time = models.DateTimeField()
 
 
 class BackCard(models.Model):
     back_id = models.AutoField(primary_key=True)
+    # 单词
     back_card_content = models.TextField()
+    # 句子0、图片1、视频2、音频3
+    content_type = models.IntegerField(default=0)
+    # 单词的全面释义
     description = models.TextField()
     create_time = models.DateTimeField(auto_now_add=True)
     update_time = models.DateTimeField(auto_now=True)
+    # 复习次数，如果记错了，重置为0
     repeat_num = models.IntegerField(default=0)
+    # 下次学习时间
     next_study_time = models.DateTimeField()
 
 
@@ -28,6 +40,7 @@ class CardRelation(models.Model):
     front_id = models.IntegerField()
     back_id = models.IntegerField()
     create_time = models.DateTimeField(auto_now_add=True)
+    # 单词在(句子/视频/音频)中的解释
     description = models.TextField()
 
 

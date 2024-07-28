@@ -16,11 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from server.views import index,generate_card,get_recite_card
+
+from server.views import home_page,recite_page,create_card_page,generate_card,get_recite_card,remember,forget,trans
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", index),
-    path("generate_card", generate_card),
-    path("generate_card", generate_card),
-    path("get_recite_card", get_recite_card),
+    path("", home_page),
+    path("recite", recite_page),
+    path("create_card_page", create_card_page),
+    path("api/trans", trans),
+    path("api/generate_card", generate_card),
+    path("api/get_recite_card", get_recite_card),
+    path("api/remember", remember),
+    path("api/forget", forget),
 ]

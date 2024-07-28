@@ -84,11 +84,11 @@
             }
 
             const cardData = cards[index];
-            const cardElement = createCard(cardData.front_card_content, cardData.back_card_content);
+            const cardElement = createCard(cardData.front_card_content, cardData.back_card_content,cardData.front_id,cardData.back_id);
             cardsContainer.appendChild(cardElement);
         }
 
-        function createCard(frontContent, backContent) {
+        function createCard(frontContent, backContent,front_id,back_id) {
             const cardContainer = document.createElement('div');
             cardContainer.className = 'card-container';
             
@@ -115,6 +115,7 @@
                 event.stopPropagation(); // 防止点击按钮时触发卡片翻转
                 currentCardIndex++;
                 showCard(currentCardIndex);
+                remember(front_id,back_id);
             });
 
             const forgetButton = document.createElement('button');
@@ -123,6 +124,7 @@
                 event.stopPropagation(); // 防止点击按钮时触发卡片翻转
                 currentCardIndex++;
                 showCard(currentCardIndex);
+                forget(front_id,back_id);
             });
 
             buttons.appendChild(rememberButton);
@@ -137,14 +139,67 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            fetch('/get_recite_card')  // 确保将URL替换为实际的后端API端点
+            fetch('/api/get_recite_card')  // 确保将URL替换为实际的后端API端点
                 .then(response => response.json())
                 .then(response => {
                     cards = response['data'];
-                    showCard(currentCardIndex);
+                    if(cards!=null){
+                        showCard(currentCardIndex);
+                    }else{
+                        const cardsContainer = document.getElementById('cards-container');
+                         cardsContainer.innerHTML = '<p>没有需要背诵的单词</p>';
+                    }
                 })
                 .catch(error => console.error('Error fetching cards:', error));
         });
+        
+        function remember(front_id,back_id) {
+            fetch('/api/remember', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                 body: JSON.stringify({ front_id: front_id,back_id:back_id })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('记住了:', data);
+                currentCardIndex++;
+                showCard(currentCardIndex);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+        
+        function forget(front_id,back_id) {
+            fetch('/api/forget', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ front_id: front_id,back_id:back_id })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('记住了:', data);
+                currentCardIndex++;
+                showCard(currentCardIndex);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
     </script>
 </body>
 </html>
