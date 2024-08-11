@@ -1,4 +1,5 @@
 from django.shortcuts import render,HttpResponse
+from django.http import JsonResponse
 from server.service import card_service
 import json
 
@@ -11,8 +12,31 @@ def create_card_page(request):
 def home_page(request):
     return render(request, "Home.html")
 
-def trans(request):
-    return HttpResponse(json.dumps({'code':0, 'message':'success','data':'success'}))
+def setting_page(request):
+    return render(request, "Setting.html")
+
+
+def ocr(request):
+    if request.method == "POST":
+        re_text = card_service.ocr(request.FILES['img'])
+        if re_text is not None:
+            return HttpResponse(json.dumps({'code':200, 'message':'success', 'data':re_text}))
+        else:
+            return HttpResponse(json.dumps({'code': 500, 'message': 'OCR recognise is fail'}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
+def trans_word(request):
+    if request.method == "GET":
+        word = request.GET.get('word')
+        translation = card_service.explain(word, card_service.WORD)
+        # response = JsonResponse(translation)
+        # response['Content-Type'] = 'application/json; charset=utf-8'
+        return HttpResponse(json.dumps({'code':0, 'message':'success','data':translation}),content_type="application/json; charset=utf-8")
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
+
 
 '''
 生成卡片

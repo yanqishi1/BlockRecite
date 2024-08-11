@@ -5,16 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Word Flashcards</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        body{
             height: 100vh;
             margin: 0;
             background-color: #f5f5dc;
             font-family: Arial, sans-serif;
         }
+        
+        .main-header {
+            background-color: #fff; /* Assuming a white background */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow under the header */
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .header-container {
+            width: 100%;
+            max-width: 1200px; /* Max width for the content */
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            margin: 0;
+            font-size: 20px;
+            color: #333; /* Dark gray color for the text */
+        }
+        
+        .sign-in {
+            color: #007BFF; /* Blue color for the sign-in link */
+            text-decoration: none;
+            font-size: 16px;
+        }
+        
+        .sign-in:hover {
+            text-decoration: underline;
+        }
+        
+        .main-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 100%;
+        }
+        
         .container {
             text-align: center;
         }
@@ -36,15 +76,27 @@
         .buttons button:hover {
             background-color: #0056b3;
         }
+        
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Word Flashcards</h1>
-        <div class="buttons">
-            <button onclick="location.href='/recite'">背单词</button>
-            <button onclick="location.href='/create_card_page'">生成单词</button>
+    <header class="main-header">
+        <div class="header-container">
+            <h1 class="logo">BlockRecite</h1>
+{#            <a href="signin.html" class="sign-in">Sign In</a>#}
+            <a href="/setting" class="sign-in">设置</a>
+        </div>
+    </header>
+    
+    <div class="main-body">
+        <div class="container">
+            <h1>Word Flashcards</h1>
+            <div class="buttons">
+                <button onclick="location.href='/recite'">背单词</button>
+                <button onclick="location.href='/create_card_page'">生成单词</button>
+            </div>
         </div>
     </div>
+
 </body>
 </html>

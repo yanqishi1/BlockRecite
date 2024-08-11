@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings Page</title>
+<style>
+    body {
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5dc;
+        font-family: Arial, sans-serif;
+        padding: 40px;
+    }
+
+    .container {
+        width: 500px;
+        margin: 0 auto;
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px #ccc;
+    }
+
+    h1 {
+        text-align: center;
+        color: #333;
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 10px;
+        color: #666;
+    }
+
+    select, input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        text-align: center;
+        display: block;
+        width: 100%;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .button:hover {
+        background-color: #0056b3;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>设置</h1>
+        <form>
+            <label>每次复习的单词数量</label>
+            <select id="wordCount" required>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="15">30</option>
+                <option value="15">45</option>
+                <option value="15">60</option>
+            </select>
+
+
+            <button type="button" class="button" onclick="setReciteNum()">设置</button>
+        </form>
+    </div>
+    <script>
+        function setReciteNum(){
+            // Get the select element by its ID
+            var selectElement = document.getElementById('wordCount');
+
+            // Retrieve the value of the selected option
+            var wordCount = selectElement.value;
+
+            // Store the value in local storage
+            localStorage.setItem('reciteNum', wordCount);
+
+            // Optionally, confirm to the user that the setting has been saved
+            alert('设置已保存: 每次复习的单词数量为 ' + wordCount);
+            // Redirect to the main page
+            window.location.href = '/';
+        }
+    </script>
+</body>

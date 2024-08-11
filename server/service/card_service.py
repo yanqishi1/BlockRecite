@@ -3,12 +3,18 @@ from server.util.SQLiteDBUtil import SQLiteDBUtil
 from server.models import FrontCard,BackCard,CardRelation
 import datetime
 from translate import Translator
+from server.service.translate_api.stardict import StarDict
+from cnocr import CnOcr
+import io
+from PIL import Image
 
 WORD = 0
 SENTENCE = 1
 Ebbinghaus = [1,2,4,7,15,30]
 # 在任何两种语言之间，中文翻译成英文
 translator = Translator(from_lang="chinese", to_lang="english")
+cn_OCR = CnOcr()
+
 
 '''
     生成卡片
@@ -39,9 +45,9 @@ def generate_card(front_card,back_cards):
 
 
 def explain(content, type):
-
     if type==WORD:
-        return translator.translate(content)
+        star_dict = StarDict("./stardict.db")
+        return star_dict.query(content)
     elif type==SENTENCE:
         return translator.translate(content)
     else:
@@ -104,19 +110,14 @@ def get_recite_content(recite_num):
         for db_result in db_results:
             card = {}
             # 正面
-            card['front_card_content'] = db_result[0]+" "+db_result[1]
+            card['front_card_content'] = db_result[0]
             # 背面
-            card['back_card_content'] = db_result[2]+" "+db_result[3]
+            card['word'] = db_result[1]
+            card['sentence_explain'] = db_result[2]
+            card['word_explain'] = db_result[3]
+
             card['front_id'] = db_result[4]
             card['back_id'] = db_result[5]
-            # # 句子
-            # card['front_card_content'] = db_result[0]
-            # # 单词
-            # card['back_card_content'] = db_result[1]
-            # # 句子的解释
-            # card['front_description'] = db_result[2]
-            # # 单词在句子中意思
-            # card['rel_description'] = db_result[3]
             recite_content.append(card)
         return recite_content
     except Exception as e:
@@ -172,3 +173,28 @@ def forget(front_id,back_id):
     except Exception as e:
         print(e)
         return False
+
+def convert_to_image(uploaded_file):
+    # 将上传的文件内容读取到字节流中
+    image_stream = io.BytesIO(uploaded_file.read())
+    # 使用 PIL 打开字节流
+    image = Image.open(image_stream)
+    return image
+
+
+def ocr(upload_img):
+    re_text = None
+    if upload_img is None:
+        return re_text
+
+    try:
+        image = convert_to_image(upload_img)
+        results = cn_OCR.ocr(image)
+
+        re_text = ""
+        for result in results:
+            re_text += result['text']
+    except Exception as e:
+        print(e)
+
+    return re_text
