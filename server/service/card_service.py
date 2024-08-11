@@ -46,6 +46,11 @@ def generate_card(front_card,back_cards):
 
 def explain(content, type):
     if type==WORD:
+        # 预处理
+        content = content.replace(" ","")
+        if content.endswith("."):
+            content = content.replace(".","")
+
         star_dict = StarDict("./stardict.db")
         return star_dict.query(content)
     elif type==SENTENCE:

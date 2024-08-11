@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dictionary Side Panel</title>
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f5f5dc;
+        font-family: Arial, sans-serif;
+      }
+      #definition-word {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+      }
+      .word-button {
+        border: none;
+        background: none;
+        font: inherit;
+        cursor: pointer;
+        display: inline-block;
+        transition: all 0.3s ease;
+        line-height: 1.5;
+      }
+      .word-button:hover {
+        font-weight: bold;
+        color: black;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .word-explain {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .word-explain p {
+        margin: 0;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+      .word-explain-item:hover{
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .word-explain-input{
+        width: 200px;
+        height: 30px;
+        border: #cccccc;
+        border-radius: 4px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Block Recide</h1>
+    <hr />
+    <p id="select-a-word">Select a word to see the definition.</p>
+    <div>
+      <p id="definition-word"></p>
+      <p id="definition-text"></p>
+    </div>
+    <div id="words-container"></div>
+
+    <button id="make-card">Make Card</button>
+
+    <script src="js/trans_api/baidu_api.js"></script>
+    <script src="sidepanel.js"></script>
+
+  </body>
+</html>

@@ -15,7 +15,7 @@
 ## 主页
 
 ## chrome插件
-
+BlockReciteChromeExtention
 
 ## ipad软件
 

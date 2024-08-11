@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Dictionary</title>
+    <style>
+        body {
+            width: 300px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>BlockRecite划屏取词插件</h1>
+        <p>选择屏幕中的句子或单词，自动翻译</p>
+        <p>复习单词地址：<a href="http://localhost:8080">http://localhost:8080</a></p>
+    </div>
+
+    <div>
+        <h2>句子翻译API</h2>
+        <select>
+            <option>百度翻译</option>
+            <option>DeepL</option>
+            <option>Google翻译</option>
+        </select>
+    </div>
+
+
+    <div>
+        <h1>Github地址</h1>
+        <p>https://github.com/yanqishi1/BlockRecite</p>
+    </div>
+
+    <h3>Screenshot Tool</h3>
+    <button id="captureBtn">Capture Screenshot</button>
+    <img id="screenshotImg" style="display:none; margin-top: 20px;" />
+
+    <script>
+        document.getElementById('captureBtn').addEventListener('click', () => {
+            chrome.runtime.sendMessage({ action: 'capture' }, (response) => {
+                if (response.screenshotUrl) {
+                    const screenshotImg = document.getElementById('screenshotImg');
+                    screenshotImg.src = response.screenshotUrl;
+                    screenshotImg.style.display = 'block';
+
+                    // 创建一个下载链接
+                    const link = document.createElement('a');
+                    link.href = response.screenshotUrl;
+                    link.download = 'screenshot.png';
+                    link.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
