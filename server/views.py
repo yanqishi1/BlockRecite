@@ -1,5 +1,5 @@
 from django.shortcuts import render,HttpResponse
-from django.http import JsonResponse
+
 from server.service import card_service
 import json
 
@@ -88,6 +88,7 @@ def remember(request):
         front_id = data.get('front_id')
         back_id = data.get('back_id')
         card_service.remember(front_id,back_id)
+        card_service.recite_history_count_add()
         return HttpResponse(json.dumps({'code':200, 'message':'success'}))
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
@@ -100,5 +101,14 @@ def forget(request):
         back_id = data.get('back_id')
         card_service.forget(front_id, back_id)
         return HttpResponse(json.dumps({'code':200, 'message':'success'}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
+
+
+def get_recite_history(request):
+    if request.method == "GET":
+        data = card_service.get_recite_history()
+        return HttpResponse(json.dumps({'code':200, 'message':'success','data':data}))
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))

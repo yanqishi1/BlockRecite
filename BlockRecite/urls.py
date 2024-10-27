@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from server.views import home_page,recite_page,create_card_page,generate_card,get_recite_card,remember,forget,trans_word,setting_page,ocr
+from server.views import *
 urlpatterns = [
     path("admin/", admin.site.urls),
 
@@ -31,5 +31,6 @@ urlpatterns = [
     path("api/get_recite_card", get_recite_card),
     path("api/remember", remember),
     path("api/forget", forget),
-    path("api/ocr", ocr)
+    path("api/ocr", ocr),
+    path("api/get_recite_history", get_recite_history)
 ]

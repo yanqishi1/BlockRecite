@@ -7,6 +7,7 @@
     <style>
         body {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
@@ -14,9 +15,39 @@
             background-color: #f5f5dc;
             font-family: Arial, sans-serif;
         }
+
+        .main-header {
+            background-color: #fff; /* Assuming a white background */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow under the header */
+            height: 50px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-container {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .logo {
+            margin: 0;
+            font-size: 20px;
+            color: #333; /* Dark gray color for the text */
+        }
+        .header-container a{
+            color: black;
+            text-decoration: none;
+        }
+
         #cards-container{
             width:100%;
             height:100%;
+            text-align: center;
         }
         .card-container {
             perspective: 1000px;
@@ -44,9 +75,7 @@
             width: 100%;
             height: 100%;
             backface-visibility: hidden;
-            /*display: flex;*/
-            /*justify-content: center;*/
-            /*align-items: center;*/
+            background-color:white;
             font-size: 24px;
             font-family: "Cursive", sans-serif;
         }
@@ -80,19 +109,19 @@
     </style>
 </head>
 <body>
+    <header class="main-header">
+        <div class="header-container">
+            <h1 class="logo"><a href="/">BlockRecite</a></h1>
+            <a href="/setting" class="sign-in">设置</a>
+        </div>
+    </header>
+
     <div id="cards-container"></div>
 
     <script>
         let currentCardIndex = 0;
         let cards = [];
         var wordCount = 30;
-        
-        window.onload = function() {
-            wordCount = localStorage.getItem('reciteNum');
-            if (wordCount) {
-                document.getElementById('wordCount').value = wordCount;
-            }
-        };
 
         function showCard(index) {
             const cardsContainer = document.getElementById('cards-container');
@@ -104,11 +133,14 @@
             }
 
             const cardData = cards[index];
-            const cardElement = createCard(cardData,cardData.front_id,cardData.back_id);
+
+            var displayText = (index+1)+"/"+wordCount;
+            const cardElement = createCard(cardData,cardData.front_id,cardData.back_id,displayText);
+
             cardsContainer.appendChild(cardElement);
         }
 
-        function createCard(cardData,front_id,back_id) {
+        function createCard(cardData,front_id,back_id,displayText) {
             let sentence = cardData['front_card_content']
             let word = cardData['word']
             let sentence_explain = cardData['sentence_explain']
@@ -121,10 +153,20 @@
             card.addEventListener('click', function () {
                 this.classList.toggle('flipped');
             });
-            
-            const cardFront = createElement('div','card-content card-front');
-            cardFront.innerText = sentence;
-            
+
+            //卡片前面
+            const cardFront = createElement('div','card-content');
+
+            const displayPanel = createElement('div','display-panel');
+            displayPanel.innerText = displayText;
+            cardFront.appendChild(displayPanel);
+
+            const frontSentence = createElement('div', 'card-front');
+            frontSentence.innerText = sentence;
+            cardFront.append(frontSentence);
+
+
+            //卡片背面
             const cardBack = createElement('div','card-content card-back');
             let sentenceElem = createElement('p','card-content-sentence');
             sentenceElem.innerText = sentence;
@@ -147,7 +189,7 @@
             rememberButton.innerText = '记住了';
             rememberButton.addEventListener('click', function(event) {
                 event.stopPropagation(); // 防止点击按钮时触发卡片翻转
-                currentCardIndex++;
+
                 showCard(currentCardIndex);
                 remember(front_id,back_id);
             });
@@ -156,7 +198,7 @@
             forgetButton.innerText = '记错了';
             forgetButton.addEventListener('click', function(event) {
                 event.stopPropagation(); // 防止点击按钮时触发卡片翻转
-                currentCardIndex++;
+
                 showCard(currentCardIndex);
                 forget(front_id,back_id);
             });
@@ -173,6 +215,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            wordCount = localStorage.getItem('reciteNum');
             fetch('/api/get_recite_card?num='+wordCount)  // 确保将URL替换为实际的后端API端点
                 .then(response => response.json())
                 .then(response => {

@@ -29,6 +29,11 @@
             align-items: center;
             padding: 0 20px;
         }
+
+        .header-container a{
+            color: black;
+            text-decoration: none;
+        }
         
         .logo {
             margin: 0;
@@ -50,7 +55,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-evenly;
             flex-direction: column;
             height: 100%;
         }
@@ -77,18 +82,60 @@
             background-color: #0056b3;
         }
         
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            justify-content: center;
+            text-align: center;
+        }
+        .month-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .month-label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 20px); /* 一周7天 */
+            grid-gap: 4px;
+        }
+        .day {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            background-color: #ebedf0; /* 默认浅灰色，表示无数据 */
+        }
+        /* 不同的颜色代表不同的背单词数量 */
+        .low { background-color: #9be9a8; }    /* 1-5个单词 */
+        .medium { background-color: #40c463; } /* 6-15个单词 */
+        .high { background-color: #30a14e; }   /* 16-30个单词 */
+        .very-high { background-color: #216e39; } /* 31个及以上 */
+        
     </style>
 </head>
 <body>
     <header class="main-header">
         <div class="header-container">
             <h1 class="logo">BlockRecite</h1>
-{#            <a href="signin.html" class="sign-in">Sign In</a>#}
-            <a href="/setting" class="sign-in">设置</a>
+            <div>
+                <a href="/setting" class="sign-in">设置</a>
+                <a href="/admin" class="sign-in">后台</a>
+            </div>
         </div>
     </header>
     
     <div class="main-body">
+        <div>
+            <h1>背单词记录</h1>
+            <div class="container" id="wordGrid">
+                <!-- JavaScript 将会在这里动态生成每个月的元素 -->
+            </div>
+        </div>
         <div class="container">
             <h1>Word Flashcards</h1>
             <div class="buttons">
@@ -97,6 +144,90 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // 示例数据，包含日期和背单词数量
+        var wordData = [
+            {#{'date': '2024-01-01', 'num': 3}, {'date': '2024-01-02', 'num': 12},#}
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/get_recite_history')
+                .then(response => response.json())
+                .then(response => {
+                    wordData = JSON.parse(response['data']);
+                    if(wordData!=null){
+                        loadReciteHistory();
+                    }else{
+                        console.log("No Data");
+                    }
+                })
+                .catch(error => console.error('Error load history:', error));
+        });
+        
+        function loadReciteHistory(){
+            // 根据月份分组数据
+            const groupedData = wordData.reduce((acc, entry) => {
+                const month = entry.date.slice(0, 7); // 提取 "YYYY-MM"
+                if (!acc[month]) acc[month] = [];
+                acc[month].push(entry);
+                return acc;
+            }, {});
+    
+            // 将JSON数据动态生成HTML元素
+            const container = document.getElementById('wordGrid');
+            
+            for (const month in groupedData) {
+                const days = groupedData[month];
+                
+                // 创建包含月份标题和色块的容器
+                const monthContainer = document.createElement('div');
+                monthContainer.classList.add('month-container');
+                
+                // 创建月份标题
+                const monthLabel = document.createElement('div');
+                monthLabel.classList.add('month-label');
+                monthLabel.textContent = month; // 显示 "YYYY-MM" 格式的月份
+                
+                // 创建色块网格
+                const monthGrid = document.createElement('div');
+                monthGrid.classList.add('month-grid');
+    
+                // 按天数生成色块
+                for (let i = 1; i <= 31; i++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.classList.add('day');
+    
+                    // 查找该天的数据并设置颜色
+                    const dayData = days.find(d => new Date(d.date).getDate() === i);
+                    if (dayData) {
+                        if (dayData.num <= 5) {
+                            dayElement.classList.add('low');
+                        } else if (dayData.num <= 15) {
+                            dayElement.classList.add('medium');
+                        } else if (dayData.num <= 30) {
+                            dayElement.classList.add('high');
+                        } else {
+                            dayElement.classList.add('very-high');
+                        }
+                        // 设置悬停提示信息
+                        dayElement.title = `${dayData.date}: ${dayData.num}个单词`;
+                    }
+    
+                    monthGrid.appendChild(dayElement);
+                }
+    
+                // 将月份标题和色块网格添加到月份容器中
+                monthContainer.appendChild(monthLabel);
+                monthContainer.appendChild(monthGrid);
+    
+                // 将月份容器添加到主容器中
+                container.appendChild(monthContainer);
+            }
+        }
+
+
+    </script>
 
 </body>
 </html>

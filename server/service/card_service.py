@@ -1,6 +1,6 @@
 from datetime import datetime
 from server.util.SQLiteDBUtil import SQLiteDBUtil
-from server.models import FrontCard,BackCard,CardRelation
+from server.models import FrontCard,BackCard,CardRelation,ReciteHistory
 import datetime
 from translate import Translator
 from server.service.translate_api.stardict import StarDict
@@ -8,6 +8,11 @@ from cnocr import CnOcr
 import io
 from PIL import Image
 import string
+from django.utils import timezone
+import json
+from django.db.models import Sum
+from django.db import IntegrityError
+from django.db.models.functions import TruncDate
 
 WORD = 0
 SENTENCE = 1
@@ -29,6 +34,7 @@ def generate_card(front_card,back_cards):
         front_desc = explain(front_content,SENTENCE)
     front_card = FrontCard.objects.create(front_card_content=front_content,
                                           description=front_desc,
+                                          start_recite_time_point=current_time,
                                           next_study_time=get_recite_time(current_time,0))
 
     for back_card in back_cards:
@@ -39,6 +45,7 @@ def generate_card(front_card,back_cards):
 
         back_card = BackCard.objects.create(back_card_content=content,
                                               description=desc,
+                                              start_recite_time_point=current_time,
                                               next_study_time=get_recite_time(current_time,0))
 
         CardRelation.objects.create(front_id=front_card.front_id,back_id=back_card.back_id,description=desc)
@@ -63,13 +70,13 @@ def explain(content, type):
 '''
 艾宾浩斯遗忘曲线
 '''
-def get_recite_time(create_time,recite_num):
+def get_recite_time(start_time,recite_num):
     if recite_num==0:
-        return create_time + datetime.timedelta(minutes=30)
+        return start_time + datetime.timedelta(minutes=30)
     elif recite_num==1:
-        return create_time + datetime.timedelta(hours=12)
+        return start_time + datetime.timedelta(hours=12)
     else:
-        return create_time + datetime.timedelta(days=Ebbinghaus[recite_num-1])
+        return start_time + datetime.timedelta(days=Ebbinghaus[recite_num-1])
 
 '''
 复习单词
@@ -83,6 +90,7 @@ def get_recite_content(recite_num):
         sql = f"""
             SELECT back_id FROM server_backcard
             WHERE next_study_time <= '{current_time}'
+            and repeat_num<5
         """
 
         # 执行 SQL 查询
@@ -141,14 +149,26 @@ def remember(front_id,back_id):
         if back_card is None:
             return False
         back_card.repeat_num = back_card.repeat_num + 1
-        back_card.next_study_time = get_recite_time(back_card.create_time, back_card.repeat_num+1)
+
+        if back_card.start_recite_time_point is None:
+            # 兼容老数据
+            back_card.next_study_time = get_recite_time(back_card.create_time, back_card.repeat_num + 1)
+        else:
+            back_card.next_study_time = get_recite_time(back_card.start_recite_time_point, back_card.repeat_num+1)
         back_card.save()
+
 
         front_card = FrontCard.objects.get(front_id=front_id)
         if front_card is None:
             return False
         front_card.repeat_num = front_card.repeat_num + 1
-        front_card.next_study_time = get_recite_time(front_card.create_time, front_card.repeat_num+1)
+
+        if front_card.start_recite_time_point is None:
+            # 兼容老数据
+            front_card.next_study_time = get_recite_time(front_card.create_time, front_card.repeat_num + 1)
+        else:
+            front_card.next_study_time = get_recite_time(front_card.start_recite_time_point, front_card.repeat_num+1)
+
         front_card.save()
 
         return True
@@ -166,14 +186,16 @@ def forget(front_id,back_id):
         if back_card is None:
             return False
         back_card.repeat_num = 0
-        back_card.next_study_time = get_recite_time(back_card.create_time, back_card.repeat_num)
+        back_card.start_recite_time_point = datetime.now()
+        back_card.next_study_time = get_recite_time(back_card.start_recite_time_point, back_card.repeat_num)
         back_card.save()
 
         front_card = FrontCard.objects.get(front_id=front_id)
         if front_card is None:
             return False
         front_card.repeat_num = 0
-        front_card.next_study_time = get_recite_time(front_card.create_time, front_card.repeat_num)
+        front_card.start_recite_time_point = datetime.now()
+        front_card.next_study_time = get_recite_time(front_card.start_recite_time_point, front_card.repeat_num)
         front_card.save()
 
         return True
@@ -205,3 +227,34 @@ def ocr(upload_img):
         print(e)
 
     return re_text
+
+# 统计每天背诵了多少单词
+def recite_history_count_add(recite_type=0):
+    today = timezone.now().date()
+
+    try:
+        recite_history = ReciteHistory.objects.get(create_time__date=today, type=recite_type)
+        # If found, increment the recite_num
+        recite_history.recite_num += 1
+        recite_history.save()
+    except ReciteHistory.DoesNotExist:
+        # If not found, create a new record for today
+        recite_history = ReciteHistory(type=recite_type, recite_num=1)
+        recite_history.save()
+
+
+def get_recite_history():
+    # Get all records and group by the date part of create_time
+    recite_records = (
+        ReciteHistory.objects
+        .annotate(date=TruncDate('create_time'))  # Truncate to date
+        .values('date')  # Only get the date
+        .annotate(num=Sum('recite_num'))  # Sum recite_num for each date
+        .order_by('date')  # Order by date
+    )
+
+    # Format the results as a list of dictionaries
+    result = [{'date': record['date'].isoformat(), 'num': record['num']} for record in recite_records]
+
+    # Convert to JSON
+    return json.dumps(result, ensure_ascii=False)
