@@ -7,6 +7,7 @@ from server.service.translate_api.stardict import StarDict
 from cnocr import CnOcr
 import io
 from PIL import Image
+import string
 
 WORD = 0
 SENTENCE = 1
@@ -46,8 +47,9 @@ def generate_card(front_card,back_cards):
 
 def explain(content, type):
     if type==WORD:
-        # 预处理
-        content = content.replace(" ","")
+        # 预处理,去掉空格和标点符号
+        content = content.strip()
+        content = content.strip(string.punctuation)
         if content.endswith("."):
             content = content.replace(".","")
 

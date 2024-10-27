@@ -17,5 +17,8 @@
 ## chrome插件
 BlockReciteChromeExtention
 
-## ipad软件
+# Base
+
+本软件的单词、短语翻译部分，基于stardict，长句子翻译基于百度、谷歌等翻译API
+
 

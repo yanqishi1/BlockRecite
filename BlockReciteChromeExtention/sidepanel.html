@@ -17,6 +17,7 @@
         display: flex;
         flex-wrap: wrap;
         gap: 4px;
+        font-size: 20px;
       }
       .word-button {
         border: none;
@@ -54,6 +55,25 @@
         border: #cccccc;
         border-radius: 4px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      .word-explain-del {
+        display: inline-block;
+        margin: 5px;
+        padding: 5px 10px; /* 内边距 */
+        background-color: lightgray;
+        border: none; /* 去掉边框 */
+        border-radius: 5px; /* 圆角 */
+        cursor: pointer; /* 鼠标悬停时显示手型光标 */
+        font-size: 16px; /* 字体大小 */
+        transition: background-color 0.3s, transform 0.2s; /* 平滑过渡效果 */
+      }
+
+      .word-explain-del:hover {
+        background-color: #c82333; /* 鼠标悬停时的背景颜色 */
+      }
+
+      .word-explain-del:active {
+        transform: scale(0.95); /* 点击时缩小效果 */
       }
 
 

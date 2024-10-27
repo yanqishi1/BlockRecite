@@ -13,7 +13,9 @@
 // limitations under the License.
 
 var explainId = 0;
-var backendUrl = "http://114.132.79.7/"
+var backendUrl = "http://114.132.79.7/";
+//光标选中的单词/短语，用于去重
+var selectText = "";
 
 chrome.storage.session.get('lastWord', ({ lastWord }) => {
   updateDefinition(lastWord);
@@ -48,7 +50,9 @@ function updateDefinition(word) {
   // Show word and definition.
   document.body.querySelector('#definition-word').innerText = word;
   document.getElementById('make-card').onclick = generateCard;
-  render_origin_text()
+  // 监听释放鼠标按钮事件
+  document.addEventListener("mouseup", mouseUp, true);
+  document.getElementById('words-container').innerText='';
   baidu(word);
 }
 
@@ -193,21 +197,92 @@ function createElement(tag, cls, id){
 }
 
 
+// 释放鼠标处理函数，用于选中单词或短语
+function mouseUp() {
+    var text = "";
+    if (window.getSelection) {
+      text = window.getSelection().toString();
+    } else if (document.selection && document.selection.type != "Control") {
+      text = document.selection.createRange().text;
+    }
+    if (text!="" && text!=selectText) {
+      console.log(text);
+      createWordsExplainBlock(text);
+      selectText = text;
+    }
+}
 
-function render_origin_text(){
-  const definitionText = document.getElementById('definition-word');
-  const words = definitionText.innerText.split(' ');
+/**
+ * 创建一个单词的解释
+ * @param word
+ */
+function createWordsExplainBlock(word){
+  word = trimPunctuation(word)
+  const explanationContainer = document.getElementById('words-container');
+  //一行单词解释，
+  const wordDiv = createElement('div','word-explain','word-explain-'+explainId);
 
-  definitionText.innerHTML = '';
+  //单词本体
+  const wordOrigin = createElement('p','word-explain-origin', 'word-explain-origin-'+explainId);
+  wordOrigin.innerText = word;
 
-  words.forEach(word => {
-    const button = document.createElement('button');
-    button.innerText = word;
-    button.className = 'word-button';
-    button.onclick = handleClick;
-    definitionText.appendChild(button);
-    definitionText.appendChild(document.createTextNode(' '));
+  //单词的最终意思，可输入
+  const explanationInput = createElement('input','word-explain-input','word-explain-input-'+explainId);
+
+  explanationInput.type = 'text';
+  explanationInput.placeholder = 'explain';
+  //删除这个单词的相关操作
+  const wordDictDel= createElement('button','word-explain-del');
+  wordDictDel.setAttribute("explainId", explainId)
+  wordDictDel.innerText = "x"
+  wordDictDel.addEventListener('click', function(event) {
+    // 获取当前点击的按钮
+    const button = event.currentTarget;
+
+    // 获取按钮的属性
+    const id = button.getAttribute('explainId');
+    const element = document.getElementById('word-explain-'+id);
+    if (element) {
+      element.remove(); // 删除元素
+      console.log('元素已删除');
+    } else {
+      console.log('元素不存在');
+    }
   });
 
-  document.getElementById('words-container').innerText='';
+
+  //单词解释
+  const wordDictDiv = createElement('div','word-explain-container')
+  fetchTranslation(word).then(translation => {
+    //解释分行展示
+    translation.split("\n").forEach((transItem) => {
+      let item = createElement("p", "word-explain-item", "word-explain-item-"+explainId);
+      item.innerText = transItem;
+      wordDictDiv.appendChild(item);
+      item.onclick = function () {
+        //获取explainId
+        let wordId = item.id.split("-").pop();
+        //点击后，将item的innerText填到同行的input中
+        let inputItem = document.getElementById('word-explain-input-'+wordId);
+        inputItem.value = item.innerText;
+      }
+    });
+    explainId++;
+  });
+
+
+  wordDiv.appendChild(wordOrigin);
+  wordDiv.appendChild(wordDictDiv);
+  wordDiv.appendChild(explanationInput);
+  wordDiv.appendChild(wordDictDel)
+  explanationContainer.appendChild(wordDiv);
+}
+
+/**
+ * 删除字符串开头和结尾的空格和标点符号
+ * @param str
+ * @returns {*}
+ */
+function trimPunctuation(str) {
+  return str.replace(/^[\W_]+|[\W_]+$/g, '');
 }

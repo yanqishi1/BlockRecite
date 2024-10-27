@@ -29,9 +29,12 @@ def ocr(request):
 def trans_word(request):
     if request.method == "GET":
         word = request.GET.get('word')
-        translation = card_service.explain(word, card_service.WORD)
-        # response = JsonResponse(translation)
-        # response['Content-Type'] = 'application/json; charset=utf-8'
+        type = request.GET.get('type')
+        if type is None:
+            # 默认是单词
+            type = card_service.WORD
+
+        translation = card_service.explain(word, type)
         return HttpResponse(json.dumps({'code':0, 'message':'success','data':translation}),content_type="application/json; charset=utf-8")
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
