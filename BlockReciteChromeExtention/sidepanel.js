@@ -13,9 +13,17 @@
 // limitations under the License.
 
 var explainId = 0;
+var backendUrl = "http://114.132.79.7/"
 
 chrome.storage.session.get('lastWord', ({ lastWord }) => {
   updateDefinition(lastWord);
+});
+
+// 初始化：从 Chrome 存储中获取并设置下拉框的值
+chrome.storage.local.get('backEndIP', function(result) {
+  if (result.backEndIP) {
+    backendUrl = result.backEndIP;
+  }
 });
 
 
@@ -62,7 +70,7 @@ function getCombinedText(elementId) {
 
 function generateCard() {
   let sentence = getCombinedText('definition-word');
-  let sentenceExplain = document.getElementById('definition-text').innerText;
+  let sentenceExplain = document.getElementById('definition-explain').value;
 
   let back_cards = []
   let wordElements = document.getElementsByClassName('word-explain');
@@ -85,7 +93,7 @@ function generateCard() {
     back_card: back_cards
   };
 
-  fetch('http://127.0.0.1:8080/api/generate_card', {
+  fetch(backendUrl+'api/generate_card', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -152,7 +160,8 @@ function handleClick(event) {
 
 
 function fetchTranslation(word) {
-  return fetch(`http://127.0.0.1:8080/api/trans_word?word=${encodeURIComponent(word)}`)
+  word = word.replace(",","").replace(".","")
+  return fetch(backendUrl+`api/trans_word?word=${encodeURIComponent(word)}`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

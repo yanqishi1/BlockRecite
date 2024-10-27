@@ -15,7 +15,15 @@
     <div>
         <h1>BlockRecite划屏取词插件</h1>
         <p>选择屏幕中的句子或单词，自动翻译</p>
-        <p>复习单词地址：<a href="http://localhost:8080">http://localhost:8080</a></p>
+    </div>
+
+    <div>
+        <p>复习单词地址:</p>
+        <select id="backEndIP">
+            <option value="http://114.132.79.7:8080/">http://114.132.79.7:8080/</option>
+            <option value="http://114.132.79.7/">http://114.132.79.7/</option>
+            <option value="http://gyberpunk.site/">http://gyberpunk.site/</option>
+        </select>
     </div>
 
     <div>
@@ -52,6 +60,23 @@
                     link.click();
                 }
             });
+        });
+
+        document.getElementById('backEndIP').addEventListener('change', function() {
+            // 获取当前选择的值
+            var selectedValue = this.value;
+
+            // 更新 Chrome 插件的全局变量（使用 chrome.storage API）
+            chrome.storage.local.set({ backEndIP: selectedValue }, function() {
+                console.log('Backend IP has been set to: ' + selectedValue);
+            });
+        });
+
+        // 初始化：从 Chrome 存储中获取并设置下拉框的值
+        chrome.storage.local.get('backEndIP', function(result) {
+            if (result.backEndIP) {
+                document.getElementById('backEndIP').value = result.backEndIP;
+            }
         });
     </script>
 </body>

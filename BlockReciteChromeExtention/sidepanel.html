@@ -55,16 +55,32 @@
         border-radius: 4px;
         box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
       }
+
+
+      #definition-explain {
+        width: 100%; /* 让输入框占满父元素的宽度 */
+        padding: 12px; /* 内边距，增加触感 */
+        font-size: 16px; /* 字体大小 */
+        border: 2px solid #ccc; /* 边框样式 */
+        border-radius: 8px; /* 圆角边框 */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+        transition: border-color 0.3s ease; /* 平滑过渡效果 */
+      }
+
+      #definition-explain:focus {
+        border-color: #007bff; /* 聚焦时的边框颜色 */
+        outline: none; /* 去掉默认的轮廓 */
+      }
     </style>
   </head>
 
   <body>
     <h1>Block Recide</h1>
-    <hr />
+    <hr/>
     <p id="select-a-word">Select a word to see the definition.</p>
     <div>
       <p id="definition-word"></p>
-      <p id="definition-text"></p>
+      <input type="text" id="definition-explain">
     </div>
     <div id="words-container"></div>
 

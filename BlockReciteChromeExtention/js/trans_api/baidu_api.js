@@ -27,7 +27,7 @@ function baidu(query){
         .then(response => response.json())
         .then(data => {
             console.log(data);
-            document.getElementById('definition-text').innerHTML = data.trans_result[0].dst
+            document.getElementById('definition-explain').value=data.trans_result[0].dst;
         })
         .catch(error => console.error('Error:', error));
 }
