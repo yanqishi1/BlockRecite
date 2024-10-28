@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from server.service import voice_service
 from server.util.SQLiteDBUtil import SQLiteDBUtil
 from server.models import FrontCard,BackCard,CardRelation,ReciteHistory
 import datetime
@@ -258,3 +260,18 @@ def get_recite_history():
 
     # Convert to JSON
     return json.dumps(result, ensure_ascii=False)
+
+from django.shortcuts import get_object_or_404
+
+def get_voice(front_id):
+
+    try:
+        front_card = FrontCard.objects.get(front_id=front_id)
+        if front_card is not None:
+            voice = voice_service.generate_voice_by_text(front_card.front_card_content,front_id)
+            if voice is not None:
+                return voice
+    except Exception as e:
+        print("Front Card find error:",e)
+    return None
+

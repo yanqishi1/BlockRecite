@@ -1,5 +1,5 @@
 from django.shortcuts import render,HttpResponse
-
+import os
 from server.service import card_service
 import json
 
@@ -14,6 +14,9 @@ def home_page(request):
 
 def setting_page(request):
     return render(request, "Setting.html")
+
+def voice_page(request):
+    return render(request, "voice_page.html")
 
 
 def ocr(request):
@@ -110,5 +113,22 @@ def get_recite_history(request):
     if request.method == "GET":
         data = card_service.get_recite_history()
         return HttpResponse(json.dumps({'code':200, 'message':'success','data':data}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
+def get_voice(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode("utf-8"))
+        front_id = data.get('front_id')
+        audio_file_path = card_service.get_voice(front_id)
+
+        if audio_file_path is not None:
+            # Return audio file in HTTP response
+            with open(audio_file_path, 'rb') as audio_file:
+                response = HttpResponse(audio_file.read(), content_type="audio/mpeg")
+                response['Content-Disposition'] = 'inline; filename="generated_audio.mp3"'
+            os.remove(audio_file_path)
+            return response
+        return HttpResponse(json.dumps({'code': 0, 'message': 'NO DATA'}))
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))

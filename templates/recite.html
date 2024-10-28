@@ -78,9 +78,13 @@
             background-color:white;
             font-size: 24px;
             font-family: "Cursive", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .card-front {
             background-color: #fff;
+            max-width: 60%;
         }
         .card-back {
             background-color: #eee;
@@ -106,6 +110,15 @@
             font-size: 16px;
             cursor: pointer;
         }
+        
+        .display-panel{
+            margin:10px;
+        }
+        
+        .audio-player{
+            margin: 10px;
+        }
+        
     </style>
 </head>
 <body>
@@ -138,6 +151,7 @@
             const cardElement = createCard(cardData,cardData.front_id,cardData.back_id,displayText);
 
             cardsContainer.appendChild(cardElement);
+            generateAndPlayAudio(cardData.front_id);
         }
 
         function createCard(cardData,front_id,back_id,displayText) {
@@ -159,10 +173,17 @@
 
             const displayPanel = createElement('div','display-panel');
             displayPanel.innerText = displayText;
-            cardFront.appendChild(displayPanel);
 
             const frontSentence = createElement('div', 'card-front');
             frontSentence.innerText = sentence;
+            const regex = new RegExp(`\\b${word}\\b`, 'gi');
+            frontSentence.innerHTML = sentence.replace(regex, `<b>${word}</b>`);
+
+            const audioPlayer = createElement('audio', 'audio-player', 'audio-player');
+            audioPlayer.controls = true;
+            
+            cardFront.appendChild(displayPanel);
+            cardFront.append(audioPlayer);
             cardFront.append(frontSentence);
 
 
@@ -287,6 +308,30 @@
                 element.id = id;
             }
             return element;
+        }
+
+        function generateAndPlayAudio(front_id) {
+            const audioPlayer = document.getElementById('audio-player');
+            fetch('api/get_voice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ front_id: front_id })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to generate audio');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const audioUrl = URL.createObjectURL(blob);
+                audioPlayer.src = audioUrl;
+                audioPlayer.style.display = 'block';
+                audioPlayer.play();
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </body>

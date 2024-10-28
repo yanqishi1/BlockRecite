@@ -25,6 +25,7 @@ urlpatterns = [
     path("recite", recite_page),
     path("create_card_page", create_card_page),
     path("setting", setting_page),
+    path("test", voice_page),
 
     path("api/trans_word", trans_word),
     path("api/generate_card", generate_card),
@@ -32,5 +33,6 @@ urlpatterns = [
     path("api/remember", remember),
     path("api/forget", forget),
     path("api/ocr", ocr),
-    path("api/get_recite_history", get_recite_history)
+    path("api/get_voice",get_voice),
+    path("api/get_recite_history", get_recite_history),
 ]
