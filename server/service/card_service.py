@@ -188,7 +188,7 @@ def forget(front_id,back_id):
         if back_card is None:
             return False
         back_card.repeat_num = 0
-        back_card.start_recite_time_point = datetime.now()
+        back_card.start_recite_time_point = datetime.datetime.now()
         back_card.next_study_time = get_recite_time(back_card.start_recite_time_point, back_card.repeat_num)
         back_card.save()
 
@@ -196,7 +196,7 @@ def forget(front_id,back_id):
         if front_card is None:
             return False
         front_card.repeat_num = 0
-        front_card.start_recite_time_point = datetime.now()
+        front_card.start_recite_time_point = datetime.datetime.now()
         front_card.next_study_time = get_recite_time(front_card.start_recite_time_point, front_card.repeat_num)
         front_card.save()
 
@@ -264,7 +264,6 @@ def get_recite_history():
 from django.shortcuts import get_object_or_404
 
 def get_voice(front_id):
-
     try:
         front_card = FrontCard.objects.get(front_id=front_id)
         if front_card is not None:
