@@ -155,10 +155,11 @@
         }
 
         function createCard(cardData,front_id,back_id,displayText) {
-            let sentence = cardData['front_card_content']
-            let word = cardData['word']
-            let sentence_explain = cardData['sentence_explain']
-            let word_explain = cardData['word_explain']
+            let sentence = cardData['front_card_content'];
+            let word = cardData['word'];
+            let sentence_explain = cardData['sentence_explain'];
+            let word_explain = cardData['word_explain'];
+            let extra_word = cardData['extra_word'];
 
 
             const cardContainer = createElement('div','card-container');
@@ -197,11 +198,15 @@
             wordElem.innerText = word;
             let wordExplainElem = createElement('p','card-content-word-explain');
             wordExplainElem.innerText = word_explain;
+            
+            let extraElem = createElement('p','card-content-word-explain');
+            extraElem.innerText = extra_word;
 
             cardBack.appendChild(sentenceElem);
             cardBack.appendChild(sentenceExplainElem);
             cardBack.appendChild(wordElem);
             cardBack.appendChild(wordExplainElem);
+            cardBack.appendChild(extraElem);
 
             
             const buttons = createElement('div','buttons');

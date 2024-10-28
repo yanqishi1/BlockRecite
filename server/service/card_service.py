@@ -137,11 +137,38 @@ def get_recite_content(recite_num):
 
             card['front_id'] = db_result[4]
             card['back_id'] = db_result[5]
+
+            card['extra_word'] = get_extra_word(sqlite_db,card['front_id'],card['word'])
             recite_content.append(card)
         return recite_content
     except Exception as e:
         print(e)
         return None
+
+# 获取这个句子，除word以外的需要背诵的单词及释义
+def get_extra_word(sqlite_db, front_id, word):
+    res = ""
+    if front_id is None or word is None:
+        return res
+
+    sql = f"""select 
+                   back.back_card_content,
+                   rel.description
+            from server_cardrelation as rel,
+                          server_backcard as back
+            where
+                rel.back_id =back.back_id
+                and rel.front_id={front_id}
+            order by back.next_study_time"""
+
+
+    db_results = sqlite_db.query(sql)
+
+    for db_result in db_results:
+        if word!=db_result[0]:
+            res += db_result[0]+" 释义:"+db_result[1]+"\n"
+
+    return res
 
 '''
 标注记住，进入艾宾浩斯曲线的下一个复习阶段
