@@ -13,7 +13,7 @@ import string
 from django.utils import timezone
 import json
 from django.db.models import Sum
-from django.db import IntegrityError
+import random
 from django.db.models.functions import TruncDate
 
 WORD = 0
@@ -103,6 +103,8 @@ def get_recite_content(recite_num):
 
         if back_ids is None or len(back_ids)==0:
             return None
+
+        random.shuffle(back_ids)
 
         back_id_str = ",".join(back_ids)
         sql = f"""select 
