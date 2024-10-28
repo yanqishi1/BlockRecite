@@ -110,15 +110,15 @@
             font-size: 16px;
             cursor: pointer;
         }
-        
+
         .display-panel{
             margin:10px;
         }
-        
+
         .audio-player{
             margin: 10px;
         }
-        
+
     </style>
 </head>
 <body>
@@ -181,7 +181,7 @@
 
             const audioPlayer = createElement('audio', 'audio-player', 'audio-player');
             audioPlayer.controls = true;
-            
+
             cardFront.appendChild(displayPanel);
             cardFront.append(audioPlayer);
             cardFront.append(frontSentence);
@@ -210,8 +210,7 @@
             rememberButton.innerText = '记住了';
             rememberButton.addEventListener('click', function(event) {
                 event.stopPropagation(); // 防止点击按钮时触发卡片翻转
-
-                showCard(currentCardIndex);
+                
                 remember(front_id,back_id);
             });
 
@@ -219,8 +218,7 @@
             forgetButton.innerText = '记错了';
             forgetButton.addEventListener('click', function(event) {
                 event.stopPropagation(); // 防止点击按钮时触发卡片翻转
-
-                showCard(currentCardIndex);
+                
                 forget(front_id,back_id);
             });
 
