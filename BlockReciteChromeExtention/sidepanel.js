@@ -13,7 +13,8 @@
 // limitations under the License.
 
 var explainId = 0;
-var backendUrl = "http://114.132.79.7/";
+// var backendUrl = "http://114.132.79.7/";
+var backendUrl = "";
 //光标选中的单词/短语，用于去重
 var selectText = "";
 

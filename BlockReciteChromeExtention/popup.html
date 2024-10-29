@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; connect-src * ws://* wss://*; style-src * 'unsafe-inline' 'unsafe-eval'; media-src * ; img-src * data:; font-src * ; script-src * 'unsafe-inline' 'unsafe-eval';" />
     <title>Screen Dictionary</title>
     <style>
         body {
@@ -23,7 +24,7 @@
             <option value="http://114.132.79.7:8080/">http://114.132.79.7:8080/</option>
             <option value="http://114.132.79.7/">http://114.132.79.7/</option>
             <option value="http://gyberpunk.site/">http://gyberpunk.site/</option>
-            <option value="http://127.0.0.1:8000">localhost</option>
+            <option value="http://127.0.0.1:8080">localhost</option>
         </select>
     </div>
 
@@ -46,39 +47,6 @@
     <button id="captureBtn">Capture Screenshot</button>
     <img id="screenshotImg" style="display:none; margin-top: 20px;" />
 
-    <script>
-        document.getElementById('captureBtn').addEventListener('click', () => {
-            chrome.runtime.sendMessage({ action: 'capture' }, (response) => {
-                if (response.screenshotUrl) {
-                    const screenshotImg = document.getElementById('screenshotImg');
-                    screenshotImg.src = response.screenshotUrl;
-                    screenshotImg.style.display = 'block';
-
-                    // 创建一个下载链接
-                    const link = document.createElement('a');
-                    link.href = response.screenshotUrl;
-                    link.download = 'screenshot.png';
-                    link.click();
-                }
-            });
-        });
-
-        document.getElementById('backEndIP').addEventListener('change', function() {
-            // 获取当前选择的值
-            var selectedValue = this.value;
-
-            // 更新 Chrome 插件的全局变量（使用 chrome.storage API）
-            chrome.storage.local.set({ backEndIP: selectedValue }, function() {
-                console.log('Backend IP has been set to: ' + selectedValue);
-            });
-        });
-
-        // 初始化：从 Chrome 存储中获取并设置下拉框的值
-        chrome.storage.local.get('backEndIP', function(result) {
-            if (result.backEndIP) {
-                document.getElementById('backEndIP').value = result.backEndIP;
-            }
-        });
-    </script>
+    <script src="popup.js"></script>
 </body>
 </html>
