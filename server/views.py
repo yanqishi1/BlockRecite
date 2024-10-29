@@ -127,7 +127,6 @@ def get_voice(request):
             with open(audio_file_path, 'rb') as audio_file:
                 response = HttpResponse(audio_file.read(), content_type="audio/mpeg")
                 response['Content-Disposition'] = 'inline; filename="generated_audio.mp3"'
-            os.remove(audio_file_path)
             return response
         return HttpResponse(json.dumps({'code': 0, 'message': 'NO DATA'}))
     else:

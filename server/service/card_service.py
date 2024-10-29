@@ -15,6 +15,7 @@ import json
 from django.db.models import Sum
 import random
 from django.db.models.functions import TruncDate
+import os
 
 WORD = 0
 SENTENCE = 1
@@ -38,7 +39,7 @@ def generate_card(front_card,back_cards):
                                           description=front_desc,
                                           start_recite_time_point=current_time,
                                           next_study_time=get_recite_time(current_time,0))
-
+    voice_service.generate_voice_by_text(front_content,front_card.front_id)
     for back_card in back_cards:
         content = back_card.get('content', None)
         desc = back_card.get('desc',None)
@@ -201,6 +202,8 @@ def remember(front_id,back_id):
             front_card.next_study_time = get_recite_time(front_card.start_recite_time_point, front_card.repeat_num+1)
 
         front_card.save()
+        if front_card.repeat_num>=5:
+            voice_service.remove_voice(front_card.front_id)
 
         return True
     except Exception as e:
@@ -290,7 +293,6 @@ def get_recite_history():
     # Convert to JSON
     return json.dumps(result, ensure_ascii=False)
 
-from django.shortcuts import get_object_or_404
 
 def get_voice(front_id):
     try:
