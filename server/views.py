@@ -75,7 +75,7 @@ def generate_card(request):
 
 
 def get_recite_card(request):
-    num = request.GET.get('num')
+    num = int(request.GET.get('num'))
     if num is None:
         num = 30
     recite_content = card_service.get_recite_content(num)

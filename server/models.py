@@ -58,7 +58,19 @@ class ReciteHistory(models.Model):
 
 @admin.register(FrontCard)
 class FrontCardAdmin(admin.ModelAdmin):
-    list_display = ("front_id","front_card_content","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time")
+    # Define the fields that can be edited in the admin interface
+    # list_editable = (
+    #     "front_card_content",
+    #     "content_type",
+    #     "description",
+    #     "start_recite_time_point",
+    #     "repeat_num",
+    #     "next_study_time",
+    # )
+
+
+
+    list_display = ("front_id","front_card_content","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time","content_type")
     ordering = ("create_time",)
 
 

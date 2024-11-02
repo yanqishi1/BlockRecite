@@ -96,8 +96,6 @@ def get_recite_content(recite_num):
             SELECT back_id FROM server_backcard
             WHERE next_study_time <= '{current_time}'
             and repeat_num<5
-            order by back_id desc
-            limit {recite_num}
         """
 
         # 执行 SQL 查询
@@ -109,7 +107,10 @@ def get_recite_content(recite_num):
         if back_ids is None or len(back_ids)==0:
             return None
 
-        # random.shuffle(back_ids)
+        random.shuffle(back_ids)
+
+        if len(back_ids)>recite_num:
+            back_ids = back_ids[0:recite_num]
 
         back_id_str = ",".join(back_ids)
         sql = f"""select 
