@@ -33,9 +33,11 @@ def generate_card(front_card,back_cards):
 
     front_content = front_card.get('content')
     front_desc = front_card.get('desc', None)
+    content_type = front_card.get('type', None)
     if front_desc is None:
         front_desc = explain(front_content,SENTENCE)
     front_card = FrontCard.objects.create(front_card_content=front_content,
+                                          content_type=content_type,
                                           description=front_desc,
                                           start_recite_time_point=current_time,
                                           next_study_time=get_recite_time(current_time,0))
@@ -94,6 +96,8 @@ def get_recite_content(recite_num):
             SELECT back_id FROM server_backcard
             WHERE next_study_time <= '{current_time}'
             and repeat_num<5
+            order by back_id desc
+            limit {recite_num}
         """
 
         # 执行 SQL 查询
@@ -105,7 +109,7 @@ def get_recite_content(recite_num):
         if back_ids is None or len(back_ids)==0:
             return None
 
-        random.shuffle(back_ids)
+        # random.shuffle(back_ids)
 
         back_id_str = ",".join(back_ids)
         sql = f"""select 
@@ -114,7 +118,8 @@ def get_recite_content(recite_num):
                        front.description,
                        rel.description,
                        front.front_id,
-                       back.back_id
+                       back.back_id,
+                       front.content_type
                 from server_cardrelation as rel,
                               server_backcard as back,
                               server_frontcard as front
@@ -138,6 +143,7 @@ def get_recite_content(recite_num):
 
             card['front_id'] = db_result[4]
             card['back_id'] = db_result[5]
+            card['content_type'] = db_result[6]
 
             card['extra_word'] = get_extra_word(sqlite_db,card['front_id'],card['word'])
             recite_content.append(card)

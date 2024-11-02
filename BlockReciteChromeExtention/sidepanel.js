@@ -79,6 +79,11 @@ function getCombinedText(elementId) {
 function generateCard() {
   let sentence = getCombinedText('definition-word');
   let sentenceExplain = document.getElementById('definition-explain').value;
+  let frontType = 0;
+  const checkbox = document.getElementById('front-type');
+  if(checkbox.checked){
+    frontType = 1;
+  }
 
   let back_cards = []
   let wordElements = document.getElementsByClassName('word-explain');
@@ -95,7 +100,8 @@ function generateCard() {
     front_card:
         {
           content: sentence,
-          desc: sentenceExplain
+          desc: sentenceExplain,
+          type: frontType
         }
     ,
     back_card: back_cards

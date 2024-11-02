@@ -7,7 +7,7 @@ class FrontCard(models.Model):
     front_id = models.AutoField(primary_key=True)
     # 句子、图片、视频、音频
     front_card_content = models.TextField()
-    # 句子0、图片1、视频2、音频3
+    # 句子0、来自听力的句子1, 图片2、视频3
     content_type = models.IntegerField(default=0)
     # 翻译
     description = models.TextField()
