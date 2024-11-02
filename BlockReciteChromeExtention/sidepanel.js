@@ -61,13 +61,16 @@ function getCombinedText(elementId) {
   const definitionWordElement = document.getElementById(elementId);
   let combinedText = '';
 
-  // Iterate over each child node of the definitionWordElement
-  for (const child of definitionWordElement.childNodes) {
-    if (child.nodeType === Node.ELEMENT_NODE) {  // Ensure the node is an element
-      combinedText += child.innerText + ' ';  // Add a space between words
+  if(definitionWordElement.innerText!=''){
+    combinedText = definitionWordElement.innerText;
+  }else{
+      // Iterate over each child node of the definitionWordElement
+    for (const child of definitionWordElement.childNodes) {
+      if (child.nodeType === Node.ELEMENT_NODE) {  // Ensure the node is an element
+        combinedText += child.innerText + ' ';  // Add a space between words
+      }
     }
   }
-
   // Trim any extra space from the end
   return combinedText.trim();
 }

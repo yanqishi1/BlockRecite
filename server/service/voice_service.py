@@ -6,9 +6,9 @@ def generate_voice_by_text(text, front_id, lang='en', option='tts'):
         return None
 
     if option =='tts':
-        generate_voice_by_tts(text, front_id, lang)
+        return generate_voice_by_tts(text, front_id, lang)
     elif option =='pyttsx3':
-        generate_voice_by_pyttsx3(text, front_id, lang)
+        return generate_voice_by_pyttsx3(text, front_id, lang)
 
 
 def generate_voice_by_pyttsx3(text, front_id, lang='en'):
@@ -18,6 +18,8 @@ def generate_voice_by_pyttsx3(text, front_id, lang='en'):
 
     audio_file_path = get_voice_path(front_id)
     engine.save_to_file(text, audio_file_path)
+
+    return audio_file_path
 
 
 def generate_voice_by_tts(text, front_id, lang='en'):
