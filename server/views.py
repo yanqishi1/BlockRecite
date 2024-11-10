@@ -75,10 +75,19 @@ def generate_card(request):
 
 
 def get_recite_card(request):
-    num = int(request.GET.get('num'))
+    num = request.GET.get('num')
+    new_word_percent = request.GET.get('new_word_percent')
     if num is None:
         num = 30
-    recite_content = card_service.get_recite_content(num)
+    else:
+        num = int(num)
+
+    if new_word_percent is None:
+        new_word_percent=0.5
+    else:
+        new_word_percent = float(new_word_percent)
+
+    recite_content = card_service.get_recite_content(num,new_word_percent)
     if recite_content is None:
         return HttpResponse(json.dumps({'code': 200, 'message': 'No word need to recite', 'data': None}))
     else:

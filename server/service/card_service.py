@@ -86,28 +86,37 @@ def get_recite_time(start_time,recite_num):
 '''
 复习单词
 '''
-def get_recite_content(recite_num):
+def get_recite_content(recite_num, new_word_percent=0.5):
     try:
         sqlite_db = SQLiteDBUtil('db.sqlite3')
         current_time = datetime.datetime.now()
         current_time = current_time.strftime('%Y-%m-%d %H:%M:%S')
-        # 定义 SQL 查询
+
+        # 查没有背诵过的新单词
+        back_ids = []
+        db_results = get_new_word(sqlite_db,recite_num,new_word_percent, current_time)
+        for result in db_results:
+            back_ids.append(str(result[0]))
+
+        # 查询
         sql = f"""
             SELECT back_id FROM server_backcard
             WHERE next_study_time <= '{current_time}'
             and repeat_num<5
+            and repeat_num>0
         """
 
         # 执行 SQL 查询
         db_results = sqlite_db.query(sql)
-        back_ids = []
+        old_back_ids = []
         for result in db_results:
-            back_ids.append(str(result[0]))
+            old_back_ids.append(str(result[0]))
+
+        random.shuffle(old_back_ids)
+        back_ids = back_ids+old_back_ids
 
         if back_ids is None or len(back_ids)==0:
             return None
-
-        random.shuffle(back_ids)
 
         if len(back_ids)>recite_num:
             back_ids = back_ids[0:recite_num]
@@ -152,6 +161,19 @@ def get_recite_content(recite_num):
     except Exception as e:
         print(e)
         return None
+
+def get_new_word(sqlite_db, total_num, new_percent, current_time):
+    # 定义 SQL 查询
+    limit_num = int(total_num * new_percent)
+    sql = f"""
+        SELECT back_id FROM server_backcard
+        WHERE next_study_time <= '{current_time}'
+        and repeat_num=0
+        limit {limit_num}
+    """
+    # 执行 SQL 查询
+    db_results = sqlite_db.query(sql)
+    return db_results
 
 # 获取这个句子，除word以外的需要背诵的单词及释义
 def get_extra_word(sqlite_db, front_id, word):
