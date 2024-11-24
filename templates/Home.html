@@ -201,11 +201,11 @@
                     // 查找该天的数据并设置颜色
                     const dayData = days.find(d => new Date(d.date).getDate() === i);
                     if (dayData) {
-                        if (dayData.num <= 5) {
+                        if (dayData.num <= 20) {
                             dayElement.classList.add('low');
-                        } else if (dayData.num <= 15) {
+                        } else if (dayData.num <= 40) {
                             dayElement.classList.add('medium');
-                        } else if (dayData.num <= 30) {
+                        } else if (dayData.num <= 60) {
                             dayElement.classList.add('high');
                         } else {
                             dayElement.classList.add('very-high');
