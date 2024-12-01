@@ -1,5 +1,5 @@
 from django.shortcuts import render,HttpResponse
-import os
+from django.http import FileResponse
 from server.service import card_service
 import json
 
@@ -125,6 +125,19 @@ def get_recite_history(request):
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
 
+def generate_img_card(request):
+    if request.method == "POST":
+        image_file = request.FILES.get('image')
+        word = request.POST.get('word')
+        word_explain = request.POST.get('explanation')
+        if image_file is None or word is None:
+            return HttpResponse(json.dumps({'code':0, 'message':'empty param error'}))
+
+        card_service.generate_img_card(image_file, word, word_explain)
+        return HttpResponse(json.dumps({'code':200, 'message':'success'}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
 def get_voice(request):
     if request.method == "POST":
         data = json.loads(request.body.decode("utf-8"))
@@ -138,5 +151,20 @@ def get_voice(request):
                 response['Content-Disposition'] = 'inline; filename="generated_audio.mp3"'
             return response
         return HttpResponse(json.dumps({'code': 0, 'message': 'NO DATA'}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
+
+def get_image(request):
+    if request.method == "GET":
+        front_id = request.GET.get("id")
+        if front_id is not None:
+            image_path,img_type = card_service.get_image(front_id)
+            if image_path is not None and img_type is not None:
+                return FileResponse(open(image_path, 'rb'), content_type=img_type)
+            else:
+                return HttpResponse(json.dumps({'code': 0, 'message': 'Image file not found'}), status=404)
+        else:
+            return HttpResponse(json.dumps({'code': 0, 'message': 'NO DATA'}))
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))

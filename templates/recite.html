@@ -118,6 +118,10 @@
         .audio-player{
             margin: 10px;
         }
+        .img-display-card{
+            width: 100%;
+            height: 100%;
+        }
 
     </style>
 </head>
@@ -135,6 +139,7 @@
         let currentCardIndex = 0;
         let cards = [];
         var wordCount = 30;
+        var imgServerURL = "http://localhost:8080";
 
         function showCard(index) {
             const cardsContainer = document.getElementById('cards-container');
@@ -183,23 +188,31 @@
             if(content_type===0){
                 frontSentence.innerHTML = sentence.replace(regex, `<b>${word}</b>`);
             }else if(content_type===1){
-                //frontSentence.innerHTML = sentence.replace(regex, `<b><input id="target-word" type="text"></b>`);
                 frontSentence.innerHTML = sentence.replace(regex, `<b>______</b>`);
+            }else if(content_type===2) {
+                let img_url = "/api/get_image?id=" + front_id;
+                frontSentence.innerHTML = `<img src="${img_url}" alt="Front Card Image" class='img-display-card'>`;
             }
             
-
-            const audioPlayer = createElement('audio', 'audio-player', 'audio-player');
-            audioPlayer.controls = true;
-
             cardFront.appendChild(displayPanel);
-            cardFront.append(audioPlayer);
+            if(content_type===0 || content_type===1){
+                const audioPlayer = createElement('audio', 'audio-player', 'audio-player');
+                audioPlayer.controls = true;
+                cardFront.append(audioPlayer);
+            }
             cardFront.append(frontSentence);
 
 
             //卡片背面
             const cardBack = createElement('div','card-content card-back');
             let sentenceElem = createElement('p','card-content-sentence');
-            sentenceElem.innerText = sentence;
+            
+            if(content_type===2){
+                let img_url = "/api/get_image?id=" + front_id;
+                sentenceElem.innerHTML = `<img src="${img_url}" alt="Back Card Image" class='img-display-card'>`;
+            }else{
+                sentenceElem.innerText = sentence;
+            }
             let sentenceExplainElem = createElement('p','card-content-sentence-explain');
             sentenceExplainElem.innerText = sentence_explain;
             let wordElem = createElement('p','card-content-word');
@@ -323,6 +336,10 @@
 
         function generateAndPlayAudio(front_id) {
             const audioPlayer = document.getElementById('audio-player');
+            if(audioPlayer===undefined){
+                return;
+            }
+            
             fetch('api/get_voice', {
                 method: 'POST',
                 headers: {

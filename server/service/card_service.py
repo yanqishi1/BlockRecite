@@ -16,6 +16,8 @@ from django.db.models import Sum
 import random
 from django.db.models.functions import TruncDate
 import os
+from django.conf import settings
+import mimetypes
 
 WORD = 0
 SENTENCE = 1
@@ -55,6 +57,36 @@ def generate_card(front_card,back_cards):
 
         CardRelation.objects.create(front_id=front_card.front_id,back_id=back_card.back_id,description=desc)
 
+def generate_img_card(image_file, word, word_explain):
+    # Define the target directory
+    target_dir = os.path.join('static', 'imgs')
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    # Define the target file path
+    file_path = os.path.join(target_dir, image_file.name)
+
+    # Save the image file to the target directory
+    with open(file_path, 'wb+') as destination:
+        for chunk in image_file.chunks():
+            destination.write(chunk)
+
+    current_time = datetime.datetime.now()
+    front_card = FrontCard.objects.create(front_card_content=file_path,
+                                          content_type=2,
+                                          description="图片",
+                                          start_recite_time_point=current_time,
+                                          next_study_time=get_recite_time(current_time,0))
+
+    back_card = BackCard.objects.create(back_card_content=word,
+                                        description=word_explain,
+                                        start_recite_time_point=current_time,
+                                        next_study_time=get_recite_time(current_time, 0))
+
+    CardRelation.objects.create(front_id=front_card.front_id, back_id=back_card.back_id, description=word_explain)
+    print("Generate Image Card Success!")
 
 
 def explain(content, type):
@@ -71,6 +103,7 @@ def explain(content, type):
         return translator.translate(content)
     else:
         raise Exception("Unknown type")
+
 
 '''
 艾宾浩斯遗忘曲线
@@ -174,6 +207,7 @@ def get_new_word(sqlite_db, total_num, new_percent, current_time):
     # 执行 SQL 查询
     db_results = sqlite_db.query(sql)
     return db_results
+
 
 # 获取这个句子，除word以外的需要背诵的单词及释义
 def get_extra_word(sqlite_db, front_id, word):
@@ -334,3 +368,20 @@ def get_voice(front_id):
         print("Front Card find error:",e)
     return None
 
+
+def get_image(front_id):
+    try:
+        # 查询数据库获取 front_card
+        front_card = FrontCard.objects.get(front_id=front_id)
+        # 如果 front_card 存在
+        if front_card is not None and front_card.front_card_content:
+            # 获取图片路径
+            image_path = os.path.join(settings.BASE_DIR, front_card.front_card_content)
+            # 确保文件存在
+            if os.path.exists(image_path):
+                # 根据文件扩展名获取 MIME 类型
+                img_type, _ = mimetypes.guess_type(image_path)
+                return image_path,img_type
+    except Exception as e:
+        print("Front Card find error:", e)
+    return None

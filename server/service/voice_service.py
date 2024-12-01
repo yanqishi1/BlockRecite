@@ -47,4 +47,4 @@ def remove_voice(front_id):
 def get_voice_path(front_id):
     if front_id is None:
         return ""
-    return './tmp/generated_audio_' + str(front_id) + ".mp3"
+    return './static/voices/generated_audio_' + str(front_id) + ".mp3"
