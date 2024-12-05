@@ -105,6 +105,17 @@ def remember(request):
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
 
+def master_remember(request):
+    if request.method == "POST":
+        data = json.loads(request.body.decode("utf-8"))
+        front_id = data.get('front_id')
+        back_id = data.get('back_id')
+        card_service.remember(front_id,back_id,5)
+        card_service.recite_history_count_add()
+        return HttpResponse(json.dumps({'code':200, 'message':'success'}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
 
 def forget(request):
     if request.method == "POST":
@@ -166,5 +177,15 @@ def get_image(request):
                 return HttpResponse(json.dumps({'code': 0, 'message': 'Image file not found'}), status=404)
         else:
             return HttpResponse(json.dumps({'code': 0, 'message': 'NO DATA'}))
+    else:
+        return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
+def talk_to_trans(request):
+    if request.method == "POST":
+        voice_file = request.FILES.get('voice')
+        return HttpResponse(json.dumps({'code':200, 'message':'success', 'data':{
+            'voice_text':'speech_text',
+            'transcription_text':'transcription_text'
+        }}))
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))

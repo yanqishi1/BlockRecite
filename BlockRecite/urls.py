@@ -32,9 +32,11 @@ urlpatterns = [
     path("api/get_recite_card", get_recite_card),
     path("api/remember", remember),
     path("api/forget", forget),
+    path("/api/master", master_remember),
     path("api/ocr", ocr),
     path("api/get_voice",get_voice),
     path("api/get_image",get_image),
     path("api/get_recite_history", get_recite_history),
     path("api/generate_img_card", generate_img_card),
+    path("api/talk_to_trans", talk_to_trans),
 ]

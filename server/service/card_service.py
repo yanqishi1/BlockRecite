@@ -76,7 +76,7 @@ def generate_img_card(image_file, word, word_explain):
     current_time = datetime.datetime.now()
     front_card = FrontCard.objects.create(front_card_content=file_path,
                                           content_type=2,
-                                          description="图片",
+                                          description="",
                                           start_recite_time_point=current_time,
                                           next_study_time=get_recite_time(current_time,0))
 
@@ -237,13 +237,13 @@ def get_extra_word(sqlite_db, front_id, word):
 '''
 标注记住，进入艾宾浩斯曲线的下一个复习阶段
 '''
-def remember(front_id,back_id):
+def remember(front_id,back_id, repeat_num=1):
     try:
         # 增加复习时间
         back_card = BackCard.objects.get(back_id=back_id)
         if back_card is None:
             return False
-        back_card.repeat_num = back_card.repeat_num + 1
+        back_card.repeat_num = back_card.repeat_num + repeat_num
 
         if back_card.start_recite_time_point is None:
             # 兼容老数据
@@ -256,7 +256,7 @@ def remember(front_id,back_id):
         front_card = FrontCard.objects.get(front_id=front_id)
         if front_card is None:
             return False
-        front_card.repeat_num = front_card.repeat_num + 1
+        front_card.repeat_num = front_card.repeat_num + repeat_num
 
         if front_card.start_recite_time_point is None:
             # 兼容老数据
