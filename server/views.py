@@ -1,7 +1,10 @@
 from django.shortcuts import render,HttpResponse
 from django.http import FileResponse
 from server.service import card_service
+from server.service import ai_service
 import json
+from BlockRecite import settings
+import os
 
 def recite_page(request):
     return render(request, "recite.html")
@@ -183,9 +186,27 @@ def get_image(request):
 def talk_to_trans(request):
     if request.method == "POST":
         voice_file = request.FILES.get('voice')
+
+        # 获取文件名
+        file_name = voice_file.name
+
+        # 设置保存路径（在 Django 的 MEDIA_ROOT 目录下）
+        save_path = os.path.join(settings.STATIC_URL, 'voices', file_name)
+
+        # 确保目录存在
+        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+
+        # 将文件保存到本地
+        with open(save_path, 'wb') as f:
+            for chunk in voice_file.chunks():  # 分块写入文件
+                f.write(chunk)
+
+
+        speech_text, transcription_text = ai_service.get_voice_trans_answer(save_path)
         return HttpResponse(json.dumps({'code':200, 'message':'success', 'data':{
-            'voice_text':'speech_text',
-            'transcription_text':'transcription_text'
+            'voice_text':speech_text,
+            'transcription_text':transcription_text
         }}))
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
+
