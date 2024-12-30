@@ -1,6 +1,8 @@
 from gtts import gTTS
 import os
 import pyttsx3
+
+
 def generate_voice_by_text(text, front_id, lang='en', option='tts'):
     if text is None or len(text) == 0:
         return None

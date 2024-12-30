@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from server.service import voice_service
+from server.service.ai_service import voice_service
 from server.util.SQLiteDBUtil import SQLiteDBUtil
 from server.models import FrontCard,BackCard,CardRelation,ReciteHistory
 import datetime
@@ -43,7 +43,7 @@ def generate_card(front_card,back_cards):
                                           description=front_desc,
                                           start_recite_time_point=current_time,
                                           next_study_time=get_recite_time(current_time,0))
-    voice_service.generate_voice_by_text(front_content,front_card.front_id)
+    voice_service.generate_voice_by_text(front_content, front_card.front_id)
     for back_card in back_cards:
         content = back_card.get('content', None)
         desc = back_card.get('desc',None)
@@ -361,7 +361,7 @@ def get_voice(front_id):
     try:
         front_card = FrontCard.objects.get(front_id=front_id)
         if front_card is not None:
-            voice = voice_service.generate_voice_by_text(front_card.front_card_content,front_id)
+            voice = voice_service.generate_voice_by_text(front_card.front_card_content, front_id)
             if voice is not None:
                 return voice
     except Exception as e:

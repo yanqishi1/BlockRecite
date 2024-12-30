@@ -39,4 +39,5 @@ urlpatterns = [
     path("api/get_recite_history", get_recite_history),
     path("api/generate_img_card", generate_img_card),
     path("api/talk_to_trans", talk_to_trans),
+    path("api/get_talk_history", get_talk_history),
 ]

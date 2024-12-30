@@ -56,6 +56,14 @@ class ReciteHistory(models.Model):
     # 时间
     create_time = models.DateTimeField(auto_now_add=True)
 
+class VoiceTranslateHistory(models.Model):
+    voice_id = models.AutoField(primary_key=True)
+    user_id = models.IntegerField(default=0)
+    voice_text = models.TextField()
+    translate_text = models.TextField()
+    # 时间
+    create_time = models.DateTimeField(auto_now_add=True)
+
 @admin.register(FrontCard)
 class FrontCardAdmin(admin.ModelAdmin):
     # Define the fields that can be edited in the admin interface
@@ -67,8 +75,6 @@ class FrontCardAdmin(admin.ModelAdmin):
     #     "repeat_num",
     #     "next_study_time",
     # )
-
-
 
     list_display = ("front_id","front_card_content","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time","content_type")
     ordering = ("create_time",)
@@ -88,4 +94,9 @@ class CardRelationAdmin(admin.ModelAdmin):
 @admin.register(ReciteHistory)
 class ReciteHistoryAdmin(admin.ModelAdmin):
     list_display = ("recite_id","recite_num","type","create_time")
+    ordering = ("create_time",)
+
+@admin.register(VoiceTranslateHistory)
+class VoiceTranslateHistoryAdmin(admin.ModelAdmin):
+    list_display = ("voice_id","voice_text","translate_text","create_time")
     ordering = ("create_time",)

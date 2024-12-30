@@ -5,6 +5,7 @@ from server.service import ai_service
 import json
 from BlockRecite import settings
 import os
+from server.models import VoiceTranslateHistory
 
 def recite_page(request):
     return render(request, "recite.html")
@@ -203,6 +204,9 @@ def talk_to_trans(request):
 
 
         speech_text, transcription_text = ai_service.get_voice_trans_answer(save_path)
+        if speech_text is not None and transcription_text is not None:
+            VoiceTranslateHistory.objects.create(voice_text=speech_text, translate_text=transcription_text)
+
         return HttpResponse(json.dumps({'code':200, 'message':'success', 'data':{
             'voice_text':speech_text,
             'transcription_text':transcription_text
@@ -210,3 +214,23 @@ def talk_to_trans(request):
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
 
+def get_talk_history(request):
+    if request.method == "GET":
+        try:
+            # 查询指定 user_id 的所有记录
+            records = VoiceTranslateHistory.objects.filter(user_id=0)
+
+            # 如果没有找到记录
+            if not records:
+                return HttpResponse(json.dumps({'code': 404, 'message': 'No records found for this user_id'}))
+
+            # 将查询的结果转换为字典列表
+            records_data = list(records.values('voice_id', 'voice_text', 'translate_text'))
+
+            # 返回JSON格式的响应
+            return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data':records_data}))
+
+        except Exception as e:
+            return HttpResponse(json.dumps({'code': 500, 'message':str(e)}))
+    else:
+        return HttpResponse(json.dumps({'code': 0, 'message': 'method not allowed'}))
