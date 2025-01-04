@@ -57,10 +57,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://114.132.79.7:3000",
-    "http://192.168.0.109:3000",
-    "https://yldeeqjzvnui.sealoshzh.site",
-    "https://sjjeivwydkkg.sealoshzh.site"
+    "http://192.168.0.109:3000"
 ]
+
+# 添加更宽松的CORS配置
+CORS_ALLOW_ALL_ORIGINS = True
 
 # 允许携带认证信息
 CORS_ALLOW_CREDENTIALS = True
