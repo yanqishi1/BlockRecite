@@ -1,17 +1,28 @@
-document.getElementById('captureBtn').addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: 'capture' }, (response) => {
-        if (response.screenshotUrl) {
-            const screenshotImg = document.getElementById('screenshotImg');
-            screenshotImg.src = response.screenshotUrl;
-            screenshotImg.style.display = 'block';
-
-            // 创建一个下载链接
-            const link = document.createElement('a');
-            link.href = response.screenshotUrl;
-            link.download = 'screenshot.png';
-            link.click();
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const captureBtn = document.getElementById('captureBtn');
+    
+    // 点击截图按钮
+    captureBtn.addEventListener('click', function() {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+            // 先注入脚本，然后发送消息
+            chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id },
+                files: ['js/screenshot.js']
+            }).then(() => {
+                chrome.tabs.sendMessage(tabs[0].id, {action: 'initScreenshot'}, (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error(chrome.runtime.lastError);
+                        return;
+                    }
+                    window.close(); // 成功启动截图后关闭popup
+                });
+            }).catch(err => {
+                console.error('Failed to inject script:', err);
+            });
+        });
     });
+
+    // 保持其他代码不变...
 });
 
 document.getElementById('backEndIP').addEventListener('change', function() {

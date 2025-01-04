@@ -9,7 +9,14 @@
     "128": "images/icon128.png"
   },
   "host_permissions": ["*://*/*"],
-  "permissions": ["sidePanel", "contextMenus", "storage","activeTab", "scripting"],
+  "permissions": [
+    "sidePanel", 
+    "contextMenus", 
+    "storage",
+    "activeTab", 
+    "scripting", 
+    "tabs"
+  ],
   "background": {
     "service_worker": "background.js",
     "type": "module"

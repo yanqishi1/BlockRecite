@@ -3,7 +3,6 @@ import requests
 from .doubao_service import get_doubao_answer
 from .google_service import google_trans_voice_to_text
 
-
 def get_voice_trans_answer(voice_path, voice_model="sense_voice_to_text", gpt_model="doubao"):
     speech_text = trans_voice_to_text(voice_path, voice_model)
     transcription_text = get_gpt_answer(speech_text, gpt_model)
@@ -16,7 +15,7 @@ def trans_voice_to_text(voice_path, voice_model):
         text = google_trans_voice_to_text(voice_path)
         print("Google voice:",text)
         return text
-    if voice_model == 'sense_voice_to_text':
+    elif voice_model == 'sense_voice_to_text':
         text = call_sense_voice_api(voice_path)
         print("SenceVoice voice:",text)
         return text
@@ -26,7 +25,7 @@ def trans_voice_to_text(voice_path, voice_model):
 
 
 def call_sense_voice_api(audio_file_path):
-    url = "http://127.0.0.1:8001/api/sense_voice_to_text"
+    url = "https://320g424385.hsk.top/api/sense_voice_to_text"
     files = {"audio_file": open(audio_file_path, "rb")}
 
     try:
