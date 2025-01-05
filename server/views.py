@@ -249,3 +249,32 @@ def del_talk_history(request):
             return HttpResponse(json.dumps({'code': 500, 'message':str(e)}))
     else:
         return HttpResponse(json.dumps({'code': 0, 'message': 'method not allowed'}))
+
+def get_card_base_info(request):
+    if request.method == "GET":
+        try:
+            user_id = request.GET.get("user_id")
+            data = card_service.get_card_base_info(user_id)
+            # 返回JSON格式的响应
+            return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data':data}))
+        except Exception as e:
+            return HttpResponse(json.dumps({'code': 500, 'message':str(e)}))
+    else:
+        return HttpResponse(json.dumps({'code': 0, 'message': 'method not allowed'}))
+
+def get_back_word_list(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            content_type = data["content_type"]
+            content_status = int(data["content_status"])
+            page = int(data["page"])
+            page_size = int(data["page_size"])
+
+            data = card_service.get_back_word_list(content_type, content_status, page, page_size)
+            # 返回JSON格式的响应
+            return HttpResponse(json.dumps({'code': 200, 'message': 'success', 'data':data}))
+        except Exception as e:
+            return HttpResponse(json.dumps({'code': 500, 'message':str(e)}))
+    else:
+        return HttpResponse(json.dumps({'code': 0, 'message': 'method not allowed'}))

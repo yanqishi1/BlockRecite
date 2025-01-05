@@ -25,7 +25,7 @@ class BackCard(models.Model):
     back_id = models.AutoField(primary_key=True)
     # 单词
     back_card_content = models.TextField()
-    # 句子0、图片1、视频2、音频3
+    # 句子0、图片1、视频2、音频3、口语句子：汉翻英4
     content_type = models.IntegerField(default=0)
     # 单词的全面释义
     description = models.TextField()

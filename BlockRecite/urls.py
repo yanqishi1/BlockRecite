@@ -41,4 +41,6 @@ urlpatterns = [
     path("api/talk_to_trans", talk_to_trans),
     path("api/get_talk_history", get_talk_history),
     path("api/del_talk_history", del_talk_history),
+    path("api/get_card_base_info",get_card_base_info),
+    path("api/back_word_list",get_back_word_list),
 ]

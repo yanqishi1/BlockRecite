@@ -18,6 +18,7 @@ from django.db.models.functions import TruncDate
 import os
 from django.conf import settings
 import mimetypes
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 WORD = 0
 SENTENCE = 1
@@ -385,3 +386,72 @@ def get_image(front_id):
     except Exception as e:
         print("Front Card find error:", e)
     return None
+
+
+def get_card_base_info(user_id):
+    # 总记录数
+    total_records = BackCard.objects.count()
+
+    # repeat_num >= 5 的记录数
+    repeat_num_greater_than_5 = BackCard.objects.filter(repeat_num__gte=5).count()
+
+    # repeat_num < 5 的记录数
+    repeat_num_less_than_5 = BackCard.objects.filter(repeat_num__lt=5).count()
+
+    # 将统计信息保存到字典中
+    stats = {
+        "totalWords": total_records,
+        "masteredWords": repeat_num_greater_than_5,
+        "learningWords": repeat_num_less_than_5,
+    }
+    return stats
+
+
+def get_back_word_list(content_type=None, content_status=0, page=1, page_size=10):
+    # 构建查询条件
+    queryset = BackCard.objects.all()
+
+    # 根据 content_status 筛选记录
+    if content_status == 1:  # 已经掌握
+        queryset = queryset.filter(repeat_num__gte=5)
+    elif content_status == 2:  # 正在学习
+        queryset = queryset.filter(repeat_num__gt=0, repeat_num__lt=5)
+    elif content_status == 3:  # 还未学习
+        queryset = queryset.filter(repeat_num=0)
+
+    # 根据 content_type 筛选记录
+    if content_type is not None and content_type !='':
+        content_type = int(content_type)
+        queryset = queryset.filter(content_type=content_type)
+
+    # 添加排序规则（例如按创建时间排序）
+    queryset = queryset.order_by('create_time')
+
+    # 只选择必要字段
+    queryset = queryset.values(
+        "back_id",
+        "back_card_content",
+        "content_type",
+        "description",
+        "repeat_num"
+    )
+
+    # 使用 Paginator 实现分页
+    paginator = Paginator(queryset, page_size)
+    try:
+        paginated_data = paginator.page(page)
+    except PageNotAnInteger:
+        paginated_data = paginator.page(1)
+    except EmptyPage:
+        paginated_data = paginator.page(paginator.num_pages)
+
+    # 返回结果
+    result = {
+        "total": paginator.count,  # 总记录数
+        "page": paginated_data.number,  # 当前页码
+        "page_size": page_size,  # 每页大小
+        "data": list(paginated_data),  # 当前页数据，转为列表
+    }
+
+    return result
+
