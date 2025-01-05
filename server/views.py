@@ -234,3 +234,18 @@ def get_talk_history(request):
             return HttpResponse(json.dumps({'code': 500, 'message':str(e)}))
     else:
         return HttpResponse(json.dumps({'code': 0, 'message': 'method not allowed'}))
+
+
+def del_talk_history(request):
+    if request.method == "GET":
+        try:
+            voice_id = request.GET.get("voice_id")
+            if voice_id is not None:
+                VoiceTranslateHistory.objects.get(voice_id=voice_id).delete()
+            # 返回JSON格式的响应
+            return HttpResponse(json.dumps({'code': 200, 'message': 'success'}))
+
+        except Exception as e:
+            return HttpResponse(json.dumps({'code': 500, 'message':str(e)}))
+    else:
+        return HttpResponse(json.dumps({'code': 0, 'message': 'method not allowed'}))

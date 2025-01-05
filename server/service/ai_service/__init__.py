@@ -25,7 +25,7 @@ def trans_voice_to_text(voice_path, voice_model):
 
 
 def call_sense_voice_api(audio_file_path):
-    url = "https://320g424385.hsk.top/api/sense_voice_to_text"
+    url = "http://localhost:8001/api/sense_voice_to_text"
     files = {"audio_file": open(audio_file_path, "rb")}
 
     try:
