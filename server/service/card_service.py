@@ -52,6 +52,7 @@ def generate_card(front_card,back_cards):
             desc = explain(content,WORD)
 
         back_card = BackCard.objects.create(back_card_content=content,
+                                            content_type=content_type,
                                               description=desc,
                                               start_recite_time_point=current_time,
                                               next_study_time=get_recite_time(current_time,0))
@@ -240,34 +241,35 @@ def get_extra_word(sqlite_db, front_id, word):
 '''
 def remember(front_id,back_id, repeat_num=1):
     try:
-        # 增加复习时间
-        back_card = BackCard.objects.get(back_id=back_id)
-        if back_card is None:
-            return False
-        back_card.repeat_num = back_card.repeat_num + repeat_num
+        if back_id is not None:
+            # 增加复习时间
+            back_card = BackCard.objects.get(back_id=back_id)
+            if back_card is None:
+                return False
+            back_card.repeat_num = back_card.repeat_num + repeat_num
 
-        if back_card.start_recite_time_point is None:
-            # 兼容老数据
-            back_card.next_study_time = get_recite_time(back_card.create_time, back_card.repeat_num + 1)
-        else:
-            back_card.next_study_time = get_recite_time(back_card.start_recite_time_point, back_card.repeat_num+1)
-        back_card.save()
+            if back_card.start_recite_time_point is None:
+                # 兼容老数据
+                back_card.next_study_time = get_recite_time(back_card.create_time, back_card.repeat_num + 1)
+            else:
+                back_card.next_study_time = get_recite_time(back_card.start_recite_time_point, back_card.repeat_num+1)
+            back_card.save()
 
+        if front_id is not None:
+            front_card = FrontCard.objects.get(front_id=front_id)
+            if front_card is None:
+                return False
+            front_card.repeat_num = front_card.repeat_num + repeat_num
 
-        front_card = FrontCard.objects.get(front_id=front_id)
-        if front_card is None:
-            return False
-        front_card.repeat_num = front_card.repeat_num + repeat_num
+            if front_card.start_recite_time_point is None:
+                # 兼容老数据
+                front_card.next_study_time = get_recite_time(front_card.create_time, front_card.repeat_num + 1)
+            else:
+                front_card.next_study_time = get_recite_time(front_card.start_recite_time_point, front_card.repeat_num+1)
 
-        if front_card.start_recite_time_point is None:
-            # 兼容老数据
-            front_card.next_study_time = get_recite_time(front_card.create_time, front_card.repeat_num + 1)
-        else:
-            front_card.next_study_time = get_recite_time(front_card.start_recite_time_point, front_card.repeat_num+1)
-
-        front_card.save()
-        if front_card.repeat_num>=5:
-            voice_service.remove_voice(front_card.front_id)
+            front_card.save()
+            if front_card.repeat_num>=5:
+                voice_service.remove_voice(front_card.front_id)
 
         return True
     except Exception as e:
@@ -424,8 +426,8 @@ def get_back_word_list(content_type=None, content_status=0, page=1, page_size=10
         content_type = int(content_type)
         queryset = queryset.filter(content_type=content_type)
 
-    # 添加排序规则（例如按创建时间排序）
-    queryset = queryset.order_by('create_time')
+    # 添加排序规则（按创建时间逆序排序）
+    queryset = queryset.order_by('-create_time')
 
     # 只选择必要字段
     queryset = queryset.values(

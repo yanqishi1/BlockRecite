@@ -76,13 +76,13 @@ class FrontCardAdmin(admin.ModelAdmin):
     #     "next_study_time",
     # )
 
-    list_display = ("front_id","front_card_content","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time","content_type")
+    list_display = ("front_id","content_type","front_card_content","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time","content_type")
     ordering = ("create_time",)
 
 
 @admin.register(BackCard)
 class BackCardAdmin(admin.ModelAdmin):
-    list_display = ("back_id","back_card_content","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time")
+    list_display = ("back_id","back_card_content","content_type","description","create_time","update_time","start_recite_time_point","repeat_num","next_study_time")
     ordering = ("create_time",)
 
 
