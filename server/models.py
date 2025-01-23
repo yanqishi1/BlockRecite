@@ -1,5 +1,38 @@
 from django.db import models
 from django.contrib import admin
+from enum import IntEnum
+
+class User(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=64)
+    password = models.CharField(max_length=64)
+    email = models.EmailField()
+    phone = models.CharField(max_length=32)
+    user_type = models.IntegerField()
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+
+class ContentType(IntEnum):
+    """内容类型枚举"""
+    SENTENCE = 0       # 普通句子
+    LISTENING = 1      # 听力句子
+    IMAGE = 2         # 图片内容
+    VIDEO = 3         # 视频内容
+    CN_TO_EN = 4      # 汉译英句子
+
+    @classmethod
+    def choices(cls):
+        """返回Django模型可用的choices元组列表"""
+        return [(item.value, item.name) for item in cls]
+
+    @classmethod
+    def get_type_name(cls, value):
+        """根据值获取类型名称"""
+        try:
+            return cls(value).name
+        except ValueError:
+            return "UNKNOWN"
 
 
 # Create your models here.
