@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Block Recite iPad</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 整体样式 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f7;
+        }
+        
+        /* 主容器 */
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        
+        /* 卡片样式 */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 标题样式 */
+        .title {
+            font-size: 24px;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+        }
+        
+        /* 文本区域 */
+        .text-area {
+            background: #f5f5f7;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            min-height: 200px;
+        }
+        
+        /* 单词样式 */
+        .word {
+            display: inline-block;
+            margin: 4px;
+            padding: 4px 8px;
+            background: #e8e8ed;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        /* 按钮样式 */
+        .button {
+            background: #0071e3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        /* 弹窗样式 */
+        .modal {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+        
+        /* 释义列表 */
+        .definition-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .definition-item {
+            padding: 8px 16px;
+            margin: 4px 0;
+            background: #f5f5f7;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <!-- 主界面 -->
+    <div class="container">
+        <!-- 左侧原文 -->
+        <div class="card">
+            <div class="title">
+                <i class="fas fa-language"></i> 原文
+            </div>
+            <div class="text-area">
+                <span class="word">Density</span>
+                <span class="word">Functional</span>
+                <span class="word">Theory</span>
+            </div>
+        </div>
+        
+        <!-- 右侧翻译 -->
+        <div class="card">
+            <div class="title">
+                <i class="fas fa-exchange-alt"></i> 翻译
+            </div>
+            <div class="text-area">
+                密度泛函理论
+            </div>
+        </div>
+        
+        <!-- 单词详情 -->
+        <div class="card modal">
+            <div class="title">
+                <i class="fas fa-book"></i> 单词详情 - Density
+            </div>
+            <ul class="definition-list">
+                <li class="definition-item">n. 密度</li>
+                <li class="definition-item">[物] 密度</li>
+            </ul>
+        </div>
+        
+        <!-- 制卡预览 -->
+        <div class="card">
+            <div class="title">
+                <i class="fas fa-credit-card"></i> 单词卡片预览
+            </div>
+            <div class="text-area">
+                <p>Density - 密度</p>
+                <p>例句：The density of water is 1g/cm³.</p>
+            </div>
+            <button class="button">
+                <i class="fas fa-plus"></i> 制作卡片
+            </button>
+        </div>
+    </div>
+</body>
+</html>

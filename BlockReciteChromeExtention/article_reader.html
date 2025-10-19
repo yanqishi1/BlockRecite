@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文文章阅读器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.8;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            min-height: 80vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        /* 输入区域样式 */
+        .input-section {
+            display: block;
+        }
+
+        .input-section.hidden {
+            display: none;
+        }
+
+        #articleInput {
+            width: 100%;
+            min-height: 400px;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            line-height: 1.8;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        #articleInput:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+        }
+
+        #formatBtn {
+            width: 100%;
+            padding: 15px 30px;
+            margin-top: 20px;
+            font-size: 18px;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        #formatBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        #formatBtn:active {
+            transform: translateY(0);
+        }
+
+        /* 显示区域样式 */
+        .display-section {
+            display: none;
+        }
+
+        .display-section.visible {
+            display: block;
+        }
+
+        #formattedContent {
+            font-size: 18px;
+            line-height: 2;
+            color: #333;
+            text-align: justify;
+            margin-bottom: 30px;
+        }
+
+        #formattedContent p {
+            margin-bottom: 20px;
+            text-indent: 2em;
+        }
+
+        /* 字体大小样式 */
+        #formattedContent.font-normal {
+            font-size: 18px;
+        }
+
+        #formattedContent.font-large {
+            font-size: 22px;
+        }
+
+        #formattedContent.font-big {
+            font-size: 26px;
+        }
+
+        /* 控制栏样式 */
+        .control-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .font-size-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .font-size-group label {
+            font-size: 16px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        #fontSizeSelect {
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        #fontSizeSelect:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+        }
+
+        #fontSizeSelect:hover {
+            border-color: #667eea;
+        }
+
+        #restoreBtn {
+            flex: 1;
+            padding: 12px 30px;
+            font-size: 18px;
+            color: white;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+        }
+
+        #restoreBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        #restoreBtn:active {
+            transform: translateY(0);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            #articleInput {
+                min-height: 300px;
+                font-size: 14px;
+            }
+
+            #formattedContent.font-normal {
+                font-size: 16px;
+            }
+
+            #formattedContent.font-large {
+                font-size: 19px;
+            }
+
+            #formattedContent.font-big {
+                font-size: 22px;
+            }
+
+            #formatBtn, #restoreBtn {
+                font-size: 16px;
+                padding: 12px 24px;
+            }
+
+            .control-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .font-size-group {
+                justify-content: space-between;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+
+            .control-bar {
+                display: none;
+            }
+
+            #restoreBtn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📖 英文文章阅读器</h1>
+        
+        <!-- 输入区域 -->
+        <div id="inputSection" class="input-section">
+            <textarea 
+                id="articleInput" 
+                placeholder="请在此处粘贴或输入英文文章..."
+                spellcheck="false"
+            ></textarea>
+            <button id="formatBtn">✨ 排版文章</button>
+        </div>
+
+        <!-- 显示区域 -->
+        <div id="displaySection" class="display-section">
+            <div class="control-bar">
+                <div class="font-size-group">
+                    <label for="fontSizeSelect">字体大小:</label>
+                    <select id="fontSizeSelect">
+                        <option value="normal" selected>Normal</option>
+                        <option value="large">Large</option>
+                        <option value="big">Big</option>
+                    </select>
+                </div>
+                <button id="restoreBtn">🔄 恢复编辑</button>
+            </div>
+            <div id="formattedContent" class="font-normal"></div>
+        </div>
+    </div>
+
+    <script src="js/article_reader.js"></script>
+</body>
+</html>
+
