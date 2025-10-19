@@ -23,11 +23,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // 加载之前保存的文章内容
+    chrome.storage.local.get('articleText', function(result) {
+        if (result.articleText) {
+            document.getElementById('articleText').value = result.articleText;
+        }
+    });
+
     // 点击文章阅读器按钮
     articleReaderBtn.addEventListener('click', function() {
-        // 在新标签页中打开文章阅读器
-        chrome.tabs.create({
-            url: chrome.runtime.getURL('article_reader.html')
+        const articleText = document.getElementById('articleText').value.trim();
+        
+        if (!articleText) {
+            alert('请先粘贴文章内容！');
+            return;
+        }
+        
+        // 保存文章内容到 storage
+        chrome.storage.local.set({ articleText: articleText }, function() {
+            // 在新标签页中打开文章阅读器
+            chrome.tabs.create({
+                url: chrome.runtime.getURL('article_reader.html')
+            });
         });
     });
 

@@ -7,7 +7,7 @@
     <title>Screen Dictionary</title>
     <style>
         body {
-            width: 320px;
+            width: 400px;
             font-family: Arial, sans-serif;
             padding: 20px;
             background-color: #f5f5dc;
@@ -62,6 +62,32 @@
             border-color: #4CAF50;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
             outline: none;
+        }
+
+        textarea {
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+            outline: none;
+        }
+
+        #articleReaderBtn:hover {
+            background-color: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #articleReaderBtn:active {
+            transform: translateY(0);
+        }
+
+        #articleReaderBtn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         #captureBtn {
@@ -169,7 +195,8 @@
 
     <div class="section">
         <h2>文章阅读器</h2>
-        <button id="articleReaderBtn" style="width: 100%; padding: 10px 20px; font-size: 14px; color: white; background-color: #667eea; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">打开文章阅读器</button>
+        <textarea id="articleText" placeholder="在此粘贴要格式化的文章内容..." style="width: 100%; min-height: 150px; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 13px; resize: vertical; font-family: Arial, sans-serif; line-height: 1.5; box-sizing: border-box;"></textarea>
+        <button id="articleReaderBtn" style="width: 100%; margin-top: 10px; padding: 10px 20px; font-size: 14px; color: white; background-color: #667eea; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">格式化并阅读</button>
     </div>
 
     <div class="section">

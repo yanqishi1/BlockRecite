@@ -9,6 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 从本地存储加载内容
     loadFromStorage();
+    
+    // 如果有内容，自动格式化显示
+    setTimeout(() => {
+        if (articleInput.value.trim()) {
+            formatBtn.click();
+        }
+    }, 100);
 
     // 格式化文章
     formatBtn.addEventListener('click', function() {
