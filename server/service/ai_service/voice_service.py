@@ -29,8 +29,9 @@ def generate_voice_by_tts(text, front_id, lang='en'):
         tts = gTTS(text=text, lang=lang)
 
         audio_file_path = get_voice_path(front_id)
-        if os.path.exists(audio_file_path):
-            # 如果音频文件存在，直接返回路径
+        # 检查文件是否存在且大小大于0
+        if os.path.exists(audio_file_path) and os.path.getsize(audio_file_path) > 0:
+            # 如果音频文件存在且有效，直接返回路径
             return audio_file_path
 
         tts.save(audio_file_path)

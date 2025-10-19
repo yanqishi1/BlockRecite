@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const captureBtn = document.getElementById('captureBtn');
+    const articleReaderBtn = document.getElementById('articleReaderBtn');
     
     // 点击截图按钮
     captureBtn.addEventListener('click', function() {
@@ -19,6 +20,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }).catch(err => {
                 console.error('Failed to inject script:', err);
             });
+        });
+    });
+
+    // 点击文章阅读器按钮
+    articleReaderBtn.addEventListener('click', function() {
+        // 在新标签页中打开文章阅读器
+        chrome.tabs.create({
+            url: chrome.runtime.getURL('article_reader.html')
         });
     });
 

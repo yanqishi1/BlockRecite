@@ -31,5 +31,11 @@
   },
   "side_panel": {
     "default_path": "sidepanel.html"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["article_reader.html", "js/article_reader.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
 }
