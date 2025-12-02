@@ -6,7 +6,7 @@ from server.models import FrontCard,BackCard,CardRelation,ReciteHistory
 import datetime
 from translate import Translator
 from server.service.translate_api.stardict import StarDict
-from cnocr import CnOcr
+# from cnocr import CnOcr  # 移动到延迟初始化函数中
 import io
 from PIL import Image
 import string
@@ -25,7 +25,22 @@ SENTENCE = 1
 Ebbinghaus = [1,2,4,7,15,30]
 # 在任何两种语言之间，中文翻译成英文
 translator = Translator(from_lang="chinese", to_lang="english")
-cn_OCR = CnOcr()
+
+# OCR 延迟初始化，避免启动时加载失败
+cn_OCR = None
+
+def get_ocr_instance():
+    """获取 OCR 实例（延迟初始化）"""
+    global cn_OCR
+    if cn_OCR is None:
+        try:
+            from cnocr import CnOcr
+            cn_OCR = CnOcr()
+            print("OCR 初始化成功")
+        except Exception as e:
+            print(f"OCR 初始化失败: {e}")
+            raise Exception(f"OCR 服务不可用，请确保已安装 Microsoft Visual C++ Redistributable 和 onnxruntime: {e}")
+    return cn_OCR
 
 
 '''
@@ -129,7 +144,13 @@ def get_recite_content(recite_num, new_word_percent=0.5):
 
         # 查没有背诵过的新单词
         back_ids = []
-        db_results = get_new_word(sqlite_db,recite_num,new_word_percent, current_time)
+        target_new_num = int(recite_num * new_word_percent)
+        if new_word_percent > 0 and target_new_num == 0:
+            target_new_num = 1
+        if target_new_num > recite_num:
+            target_new_num = recite_num
+
+        db_results = get_new_word(sqlite_db, target_new_num, current_time)
         for result in db_results:
             back_ids.append(str(result[0]))
 
@@ -148,7 +169,17 @@ def get_recite_content(recite_num, new_word_percent=0.5):
             old_back_ids.append(str(result[0]))
 
         random.shuffle(old_back_ids)
-        back_ids = back_ids+old_back_ids
+        back_ids = back_ids + old_back_ids
+
+        # 去重，保持新单词的优先顺序
+        dedup_back_ids = []
+        seen = set()
+        for back_id in back_ids:
+            if back_id in seen:
+                continue
+            seen.add(back_id)
+            dedup_back_ids.append(back_id)
+        back_ids = dedup_back_ids
 
         if back_ids is None or len(back_ids)==0:
             return None
@@ -197,16 +228,66 @@ def get_recite_content(recite_num, new_word_percent=0.5):
         print(e)
         return None
 
-def get_new_word(sqlite_db, total_num, new_percent, current_time):
-    # 定义 SQL 查询
-    limit_num = int(total_num * new_percent)
+def get_new_word(sqlite_db, limit_num, current_time, exclude_ids=None):
+    if limit_num is None or limit_num <= 0:
+        return []
+    exclude_sql = ""
+    if exclude_ids:
+        exclude_sql = f" AND back_id NOT IN ({','.join(exclude_ids)})"
+
     sql = f"""
         SELECT back_id FROM server_backcard
-        WHERE next_study_time <= '{current_time}'
-        and repeat_num=0
-        limit {limit_num}
+        WHERE repeat_num=0
+        {exclude_sql}
+        ORDER BY 
+            CASE 
+                WHEN next_study_time IS NULL THEN 0
+                WHEN next_study_time <= '{current_time}' THEN 0
+                ELSE 1
+            END,
+            next_study_time
+        LIMIT {limit_num}
     """
-    # 执行 SQL 查询
+    db_results = sqlite_db.query(sql)
+    return db_results
+
+
+def get_additional_old_words(sqlite_db, limit_num, current_time, exclude_ids=None):
+    if limit_num is None or limit_num <= 0:
+        return []
+    exclude_sql = ""
+    if exclude_ids:
+        exclude_sql = f" AND back_id NOT IN ({','.join(exclude_ids)})"
+
+    sql = f"""
+        SELECT back_id FROM server_backcard
+        WHERE repeat_num>0
+        {exclude_sql}
+        ORDER BY 
+            CASE 
+                WHEN next_study_time <= '{current_time}' THEN 0
+                ELSE 1
+            END,
+            next_study_time
+        LIMIT {limit_num}
+    """
+    db_results = sqlite_db.query(sql)
+    return db_results
+
+
+def get_any_words(sqlite_db, limit_num, exclude_ids=None):
+    if limit_num is None or limit_num <= 0:
+        return []
+    exclude_sql = ""
+    if exclude_ids:
+        exclude_sql = f" WHERE back_id NOT IN ({','.join(exclude_ids)})"
+
+    sql = f"""
+        SELECT back_id FROM server_backcard
+        {exclude_sql}
+        ORDER BY next_study_time
+        LIMIT {limit_num}
+    """
     db_results = sqlite_db.query(sql)
     return db_results
 
@@ -318,13 +399,15 @@ def ocr(upload_img):
 
     try:
         image = convert_to_image(upload_img)
-        results = cn_OCR.ocr(image)
+        # 使用延迟初始化的 OCR 实例
+        ocr_instance = get_ocr_instance()
+        results = ocr_instance.ocr(image)
 
         re_text = ""
         for result in results:
             re_text += result['text']
     except Exception as e:
-        print(e)
+        print(f"OCR 识别失败: {e}")
 
     return re_text
 
