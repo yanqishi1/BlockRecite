@@ -100,3 +100,95 @@ class ReciteHistoryAdmin(admin.ModelAdmin):
 class VoiceTranslateHistoryAdmin(admin.ModelAdmin):
     list_display = ("voice_id","voice_text","translate_text","create_time")
     ordering = ("create_time",)
+
+
+# ==================== 句子翻译学习功能数据模型 ====================
+
+class Article(models.Model):
+    """文章表 - 支持多种考试类型（雅思、四六级、考研等）"""
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=255, verbose_name="文章题目/标题")
+    # 图片路径，用于保存文章题目图片
+    image_path = models.CharField(max_length=500, blank=True, verbose_name="题目图片路径")
+    # 考试类型：ielts, cet4, cet6,考研, 自定义等
+    exam_type = models.CharField(max_length=50, default="ielts", verbose_name="考试类型")
+    # 文章类型（不同考试有不同的类型，如雅思Task1/Task2，四六级作文类型等）
+    article_type = models.CharField(max_length=100, blank=True, verbose_name="文章类型")
+    # 自定义标签，JSON格式存储多个标签 ["标签1", "标签2"]
+    tags = models.JSONField(default=list, blank=True, verbose_name="自定义标签")
+    # 难度等级 1-5
+    difficulty = models.IntegerField(default=3, verbose_name="难度等级")
+    # 话题分类
+    topic = models.CharField(max_length=100, blank=True, verbose_name="话题分类")
+    content = models.TextField(verbose_name="完整文章内容")
+    is_system = models.BooleanField(default=False, verbose_name="是否系统预设")
+    created_by = models.IntegerField(default=0, verbose_name="创建者ID")
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'articles'
+        ordering = ['-create_time']
+
+    def __str__(self):
+        return self.title
+
+
+class ArticleSentence(models.Model):
+    """文章句子表"""
+    id = models.AutoField(primary_key=True)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='sentences')
+    sequence = models.IntegerField(verbose_name="句子在文章中的顺序")
+    english = models.TextField(verbose_name="英文原句")
+    chinese = models.TextField(verbose_name="中文翻译")
+    is_key_sentence = models.BooleanField(default=True, verbose_name="是否重点句")
+    create_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'article_sentences'
+        ordering = ['article', 'sequence']
+
+    def __str__(self):
+        return f"{self.article.title} - 句子{self.sequence}"
+
+
+class SentenceLearningLog(models.Model):
+    """句子学习记录表"""
+    id = models.AutoField(primary_key=True)
+    user_id = models.IntegerField(default=0, verbose_name="用户ID")
+    sentence = models.ForeignKey(ArticleSentence, on_delete=models.CASCADE, related_name='learning_logs')
+    user_translation = models.TextField(verbose_name="用户翻译内容")
+    ai_evaluation = models.JSONField(null=True, blank=True, verbose_name="AI评测结果")
+    has_error = models.BooleanField(default=False, verbose_name="是否有错误")
+    study_date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'sentence_learning_logs'
+        ordering = ['-study_date']
+
+    def __str__(self):
+        return f"学习记录 - {self.sentence.english[:30]}..."
+
+
+# 注册到 Django Admin
+@admin.register(Article)
+class ArticleAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "exam_type", "article_type", "difficulty", "is_system", "create_time")
+    list_filter = ("exam_type", "difficulty", "is_system")
+    search_fields = ("title", "content")
+    ordering = ("-create_time",)
+
+
+@admin.register(ArticleSentence)
+class ArticleSentenceAdmin(admin.ModelAdmin):
+    list_display = ("id", "article", "sequence", "chinese", "is_key_sentence")
+    list_filter = ("is_key_sentence",)
+    search_fields = ("english", "chinese")
+    ordering = ("article", "sequence")
+
+
+@admin.register(SentenceLearningLog)
+class SentenceLearningLogAdmin(admin.ModelAdmin):
+    list_display = ("id", "user_id", "sentence", "has_error", "study_date")
+    list_filter = ("has_error",)
+    ordering = ("-study_date",)

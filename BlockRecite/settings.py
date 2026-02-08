@@ -52,24 +52,27 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# CORS 配置
+# CORS 配置（前端开发常用端口 + 生产域名）
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:5173",   # Vite 默认
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
+    "http://127.0.0.1:5173",   # Vite 默认（127.0.0.1）
     "http://localhost:80",
     "https://320g424385.hsk.top",
     "http://320g424385.hsk.top",
     "http://114.132.79.7:3000",
     "http://192.168.0.109:3000",
     "https://gyberpunk.site",
-    "http://gyberpunk.site"
+    "http://gyberpunk.site",
 ]
 
-# 添加更宽松的CORS配置
+# 开发环境允许任意来源；与 CORS_ALLOW_CREDENTIALS=True 同时用时浏览器会拒绝，故不启用 credentials 时再开 ALL
 CORS_ALLOW_ALL_ORIGINS = True
-
-# 允许携带认证信息
-CORS_ALLOW_CREDENTIALS = True
+# 使用 ALLOW_ALL_ORIGINS 时不能 True，否则浏览器会报错
+CORS_ALLOW_CREDENTIALS = False
 
 # 允许的请求头
 CORS_ALLOW_HEADERS = [

@@ -43,4 +43,32 @@ urlpatterns = [
     path("api/del_talk_history", del_talk_history),
     path("api/get_card_base_info",get_card_base_info),
     path("api/back_word_list",get_back_word_list),
+    
+    # 句子学习 API
+    path("api/get_sentence_cards", get_sentence_cards),
+    path("api/evaluate_translation", evaluate_translation),
+    path("api/create_article", create_article),
+    path("api/get_articles", get_articles),
+    path("api/get_article_detail", get_article_detail),
+    path("api/delete_article", delete_article),
+    path("api/get_sentence_stats", get_sentence_stats),
+    path("api/get_error_sentences", get_error_sentences),
+    path("api/sentence_remember", sentence_remember),
+    path("api/sentence_forget", sentence_forget),
+    path("api/split_sentences", split_sentences),
+    
+    # 标签和类型 API
+    path("api/article_tags", get_article_tags),
+    path("api/get_exam_types", get_exam_types),
+    path("api/get_article_types", get_article_types),
+    path("api/get_article_image", get_article_image),
+    
+    # 句子管理 API
+    path("api/manage_sentences", get_manage_sentences),
+    path("api/update_sentence", update_sentence),
+    path("api/delete_sentence", delete_sentence),
+    path("api/batch_delete_sentences", batch_delete_sentences),
+    
+    # 复习卡片 API
+    path("api/create_sentence_card", create_sentence_card),
 ]
