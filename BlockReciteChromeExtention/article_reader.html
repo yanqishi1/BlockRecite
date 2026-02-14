@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>英文文章阅读器</title>
     <style>
+        /* 飞书简洁风格 - Article Reader */
         * {
             margin: 0;
             padding: 0;
@@ -12,29 +13,36 @@
         }
 
         body {
-            font-family: 'Georgia', 'Times New Roman', serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #FAFAFA;
             min-height: 100vh;
-            padding: 20px;
-            line-height: 1.8;
+            padding: 32px 20px;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 800px;
             margin: 0 auto;
             background-color: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            min-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+            min-height: 600px;
         }
 
         h1 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 30px;
-            font-size: 28px;
+            color: #1F2329;
+            margin-bottom: 8px;
+            font-size: 20px;
             font-weight: 600;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #646A73;
+            font-size: 13px;
+            margin-bottom: 24px;
         }
 
         /* 输入区域样式 */
@@ -48,45 +56,48 @@
 
         #articleInput {
             width: 100%;
-            min-height: 400px;
-            padding: 20px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            font-family: 'Georgia', 'Times New Roman', serif;
-            line-height: 1.8;
+            min-height: 240px;
+            padding: 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
             resize: vertical;
-            transition: all 0.3s ease;
+            transition: border-color 0.2s;
+            background-color: #FAFAFA;
         }
 
         #articleInput:focus {
             outline: none;
-            border-color: #4CAF50;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
+            border-color: #799FB5;
+            box-shadow: none;
         }
 
         #formatBtn {
             width: 100%;
-            padding: 15px 30px;
-            margin-top: 20px;
-            font-size: 18px;
+            height: 36px;
+            margin-top: 16px;
+            padding: 0 30px;
+            font-size: 14px;
+            font-weight: 500;
             color: white;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #799FB5;
             border: none;
-            border-radius: 10px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transition: opacity 0.2s;
         }
 
         #formatBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            opacity: 0.85;
+            transform: none;
+            box-shadow: none;
         }
 
         #formatBtn:active {
-            transform: translateY(0);
+            opacity: 0.7;
+            transform: none;
         }
 
         /* 显示区域样式 */
@@ -99,94 +110,100 @@
         }
 
         #formattedContent {
-            font-size: 18px;
-            line-height: 2;
-            color: #333;
+            font-size: 15px;
+            line-height: 1.8;
+            color: #1F2329;
             text-align: justify;
-            margin-bottom: 30px;
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #FAFAFA;
+            border-radius: 4px;
         }
 
         #formattedContent p {
-            margin-bottom: 20px;
-            text-indent: 2em;
+            margin-bottom: 16px;
+            text-indent: 0;
         }
 
         /* 字体大小样式 */
         #formattedContent.font-normal {
-            font-size: 18px;
+            font-size: 15px;
         }
 
         #formattedContent.font-large {
-            font-size: 22px;
+            font-size: 17px;
         }
 
         #formattedContent.font-big {
-            font-size: 26px;
+            font-size: 19px;
         }
 
         /* 控制栏样式 */
         .control-bar {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .font-size-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .font-size-group label {
-            font-size: 16px;
-            color: #2c3e50;
-            font-weight: 600;
+            font-size: 13px;
+            color: #1F2329;
+            font-weight: 500;
         }
 
         #fontSizeSelect {
-            padding: 8px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 15px;
-            font-family: 'Georgia', 'Times New Roman', serif;
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 120px;
+            transition: border-color 0.2s;
+            min-width: 100px;
         }
 
         #fontSizeSelect:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+            border-color: #799FB5;
+            box-shadow: none;
         }
 
         #fontSizeSelect:hover {
-            border-color: #667eea;
+            border-color: #799FB5;
         }
 
         #restoreBtn {
             flex: 1;
-            padding: 12px 30px;
-            font-size: 18px;
+            height: 32px;
+            padding: 0 20px;
+            font-size: 13px;
+            font-weight: 500;
             color: white;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #FC9D5D;
             border: none;
-            border-radius: 10px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.3);
+            transition: opacity 0.2s;
         }
 
         #restoreBtn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+            opacity: 0.85;
+            transform: none;
+            box-shadow: none;
         }
 
         #restoreBtn:active {
-            transform: translateY(0);
+            opacity: 0.7;
+            transform: none;
         }
 
         /* 响应式设计 */
@@ -196,29 +213,24 @@
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 18px;
             }
 
             #articleInput {
-                min-height: 300px;
-                font-size: 14px;
+                min-height: 200px;
+                font-size: 13px;
             }
 
             #formattedContent.font-normal {
-                font-size: 16px;
+                font-size: 14px;
             }
 
             #formattedContent.font-large {
-                font-size: 19px;
+                font-size: 16px;
             }
 
             #formattedContent.font-big {
-                font-size: 22px;
-            }
-
-            #formatBtn, #restoreBtn {
-                font-size: 16px;
-                padding: 12px 24px;
+                font-size: 18px;
             }
 
             .control-bar {
@@ -255,7 +267,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>📖 英文文章阅读器</h1>
+        <h1>英文文章阅读器</h1>
+        <p class="subtitle">让阅读变得更加舒适</p>
         
         <!-- 输入区域 -->
         <div id="inputSection" class="input-section">
@@ -264,7 +277,7 @@
                 placeholder="请在此处粘贴或输入英文文章..."
                 spellcheck="false"
             ></textarea>
-            <button id="formatBtn">✨ 排版文章</button>
+            <button id="formatBtn">排版文章</button>
         </div>
 
         <!-- 显示区域 -->
@@ -278,7 +291,7 @@
                         <option value="big">Big</option>
                     </select>
                 </div>
-                <button id="restoreBtn">🔄 恢复编辑</button>
+                <button id="restoreBtn">恢复编辑</button>
             </div>
             <div id="formattedContent" class="font-normal"></div>
         </div>

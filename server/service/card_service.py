@@ -25,7 +25,7 @@ SENTENCE = 1
 Ebbinghaus = [1,2,4,7,15,30]
 # 在任何两种语言之间，中文翻译成英文
 translator = Translator(from_lang="chinese", to_lang="english")
-
+star_dict = None
 # OCR 延迟初始化，避免启动时加载失败
 cn_OCR = None
 
@@ -113,8 +113,9 @@ def explain(content, type):
         content = content.strip(string.punctuation)
         if content.endswith("."):
             content = content.replace(".","")
-
-        star_dict = StarDict("./stardict.db")
+        global star_dict
+        if star_dict is None:
+            star_dict = StarDict("./stardict.db")
         return star_dict.query(content)
     elif type==SENTENCE:
         return translator.translate(content)

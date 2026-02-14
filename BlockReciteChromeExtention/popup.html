@@ -6,129 +6,164 @@
     <meta http-equiv="Content-Security-Policy" content="default-src *; connect-src * ws://* wss://*; style-src * 'unsafe-inline' 'unsafe-eval'; media-src * ; img-src * data:; font-src * ; script-src * 'unsafe-inline' 'unsafe-eval';" />
     <title>Screen Dictionary</title>
     <style>
+        /* 飞书简洁风格 - Popup */
         body {
             width: 400px;
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background-color: #f5f5dc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 0;
+            background-color: #FFFFFF;
             margin: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         h1 {
-            color: #2c3e50;
-            font-size: 20px;
-            margin: 0 0 10px 0;
+            color: #1F2329;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
         }
 
         h2 {
-            color: #2c3e50;
-            font-size: 16px;
-            margin: 15px 0 10px 0;
-        }
-
-        h3 {
-            color: #2c3e50;
-            font-size: 16px;
-            margin: 15px 0 10px 0;
+            color: #1F2329;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 0 0 8px 0;
         }
 
         p {
-            color: #666;
-            font-size: 14px;
-            margin: 5px 0;
-            line-height: 1.4;
+            color: #646A73;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* 头部区域 */
+        .section:first-child {
+            background-color: #FFFFFF;
+            padding: 20px 20px 16px 20px;
+            border-radius: 0;
+            margin-bottom: 0;
+            border-bottom: 1px solid #E5E7EB;
+            box-shadow: none;
         }
 
         .section {
-            background-color: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            background-color: #FFFFFF;
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin: 0 16px 12px 16px;
+            border: 1px solid #E5E7EB;
+            box-shadow: none;
         }
 
         select {
             width: 100%;
-            padding: 8px 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid #E5E7EB;
+            border-radius: 4px;
+            font-size: 13px;
             background-color: white;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: border-color 0.2s;
+            color: #1F2329;
+        }
+
+        select:hover {
+            border-color: #799FB5;
         }
 
         select:focus {
-            border-color: #4CAF50;
-            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+            border-color: #799FB5;
             outline: none;
+            box-shadow: none;
         }
 
         textarea {
-            transition: all 0.3s ease;
+            transition: border-color 0.2s;
         }
 
         textarea:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+            border-color: #799FB5;
             outline: none;
+            box-shadow: none;
+        }
+
+        #articleReaderBtn {
+            width: 100%;
+            height: 32px;
+            margin-top: 8px;
+            padding: 0 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: white;
+            background-color: #FC9D5D;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
         }
 
         #articleReaderBtn:hover {
-            background-color: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0.85;
+            transform: none;
+            box-shadow: none;
         }
 
         #articleReaderBtn:active {
-            transform: translateY(0);
+            opacity: 0.7;
+            transform: none;
         }
 
         #articleReaderBtn:disabled {
-            background-color: #ccc;
+            background-color: #E5E7EB;
+            color: #8F959E;
             cursor: not-allowed;
-            transform: none;
+            opacity: 1;
         }
 
         #captureBtn {
             width: 100%;
-            padding: 10px 20px;
-            font-size: 14px;
+            height: 32px;
+            padding: 0 20px;
+            font-size: 13px;
+            font-weight: 500;
             color: white;
-            background-color: #4CAF50;
+            background-color: #799FB5;
             border: none;
-            border-radius: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.2s;
         }
 
         #captureBtn:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            opacity: 0.85;
+            transform: none;
+            box-shadow: none;
         }
 
         #captureBtn:active {
-            transform: translateY(0);
+            opacity: 0.7;
+            transform: none;
         }
 
         .github-link {
-            color: #4CAF50;
+            color: #799FB5;
             text-decoration: none;
             word-break: break-all;
-            transition: color 0.3s ease;
+            font-size: 12px;
+            transition: opacity 0.2s;
         }
 
         .github-link:hover {
-            color: #45a049;
-            text-decoration: underline;
+            opacity: 0.7;
+            text-decoration: none;
         }
 
         #screenshotImg {
             max-width: 100%;
-            border-radius: 5px;
-            margin-top: 10px;
+            border-radius: 4px;
+            margin-top: 8px;
         }
 
         /* 添加截图相关的样式 */
@@ -146,8 +181,8 @@
 
         .selection-area {
             position: absolute;
-            border: 2px solid #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
+            border: 2px solid #799FB5;
+            background: rgba(121, 159, 181, 0.1);
             pointer-events: none;
         }
 
@@ -158,9 +193,9 @@
             transform: translateX(-50%);
             color: white;
             background: rgba(0, 0, 0, 0.7);
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 13px;
             z-index: 10000;
         }
     </style>
@@ -195,8 +230,8 @@
 
     <div class="section">
         <h2>文章阅读器</h2>
-        <textarea id="articleText" placeholder="在此粘贴要格式化的文章内容..." style="width: 100%; min-height: 150px; padding: 10px; border: 2px solid #ddd; border-radius: 5px; font-size: 13px; resize: vertical; font-family: Arial, sans-serif; line-height: 1.5; box-sizing: border-box;"></textarea>
-        <button id="articleReaderBtn" style="width: 100%; margin-top: 10px; padding: 10px 20px; font-size: 14px; color: white; background-color: #667eea; border: none; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);">格式化并阅读</button>
+        <textarea id="articleText" placeholder="在此粘贴要格式化的文章内容..." style="width: 100%; min-height: 100px; padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 4px; font-size: 13px; resize: vertical; font-family: -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.5; box-sizing: border-box; background-color: #FAFAFA;"></textarea>
+        <button id="articleReaderBtn">格式化并阅读</button>
     </div>
 
     <div class="section">

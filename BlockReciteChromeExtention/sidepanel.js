@@ -21,12 +21,6 @@ var selectText = "";
 var isEditMode = false;
 // 原始文本保存
 var originalText = "";
-// 剪切板监听相关
-var clipboardCheckInterval = null;
-var lastClipboardText = "";
-var dialogTimeout = null;
-var isDialogShowing = false; // 标记对话框是否正在显示
-var isClipboardMonitoringStarted = false; // 标记是否已开始监听剪切板
 // 标记是否已初始化编辑功能
 var isEditFunctionsInitialized = false;
 
@@ -86,9 +80,6 @@ function updateDefinition(word) {
   // 显示控制按钮
   document.getElementById('control-buttons').style.display = 'flex';
   
-  // 显示剪切板提示
-  document.getElementById('clipboard-hint').style.display = 'block';
-  
   document.getElementById('make-card').onclick = generateCard;
   // 监听释放鼠标按钮事件
   document.addEventListener("mouseup", mouseUp, true);
@@ -97,12 +88,6 @@ function updateDefinition(word) {
   
   // 初始化编辑功能
   initEditFunctions();
-  
-  // 开始监听剪切板
-  startClipboardMonitoring();
-  
-  // 绑定手动检查剪切板按钮
-  bindCheckClipboardButton();
 }
 
 function getCombinedText(elementId) {
@@ -312,6 +297,16 @@ function createWordsExplainBlock(word){
   //单词解释
   const wordDictDiv = createElement('div','word-explain-container')
   fetchTranslation(word).then(translation => {
+    // 检查翻译是否成功获取
+    if (!translation) {
+      // 翻译失败时显示提示信息
+      let errorItem = createElement("p", "word-explain-item");
+      errorItem.innerText = "翻译获取失败，请检查网络或后端服务";
+      errorItem.style.color = "#F56C6C";
+      wordDictDiv.appendChild(errorItem);
+      return;
+    }
+    
     //解释分行展示
     translation.split("\n").forEach((transItem) => {
       let item = createElement("p", "word-explain-item", "word-explain-item-"+explainId);
@@ -326,6 +321,13 @@ function createWordsExplainBlock(word){
       }
     });
     explainId++;
+  }).catch(error => {
+    // 捕获promise错误
+    console.error('Translation error:', error);
+    let errorItem = createElement("p", "word-explain-item");
+    errorItem.innerText = "翻译服务异常";
+    errorItem.style.color = "#F56C6C";
+    wordDictDiv.appendChild(errorItem);
   });
 
 
@@ -466,236 +468,3 @@ function retranslateText() {
   // 重新翻译
   baidu(text);
 }
-
-// ==================== 新增功能：剪切板监听 ====================
-
-/**
- * 绑定手动检查剪切板按钮
- */
-function bindCheckClipboardButton() {
-  const checkBtn = document.getElementById('check-clipboard-btn');
-  if (checkBtn && !checkBtn.dataset.bound) {
-    checkBtn.dataset.bound = 'true';
-    checkBtn.addEventListener('click', function() {
-      // 手动触发剪切板检查
-      checkClipboard();
-      // 显示反馈
-      const originalText = checkBtn.innerText;
-      checkBtn.innerText = '检查中...';
-      checkBtn.disabled = true;
-      setTimeout(() => {
-        checkBtn.innerText = originalText;
-        checkBtn.disabled = false;
-      }, 500);
-    });
-  }
-}
-
-/**
- * 开始监听剪切板
- */
-function startClipboardMonitoring() {
-  // 如果已经开始监听，不重复添加
-  if (isClipboardMonitoringStarted) {
-    return;
-  }
-  
-  isClipboardMonitoringStarted = true;
-  
-  // 清除之前的监听
-  if (clipboardCheckInterval) {
-    clearInterval(clipboardCheckInterval);
-  }
-  
-  // 尝试初始化剪切板内容
-  tryReadClipboard();
-  
-  // 监听页面获得焦点事件（当用户切换回来时检查剪切板）
-  window.addEventListener('focus', handleWindowFocus);
-  
-  // 监听粘贴事件
-  document.addEventListener('paste', handlePaste);
-  
-  // 定期检查剪切板（作为备用方案）
-  clipboardCheckInterval = setInterval(() => {
-    checkClipboard();
-  }, 2000); // 降低频率到2秒
-}
-
-/**
- * 尝试读取剪切板
- */
-function tryReadClipboard() {
-  if (navigator.clipboard && navigator.clipboard.readText) {
-    navigator.clipboard.readText()
-      .then(text => {
-        lastClipboardText = text || '';
-      })
-      .catch(err => {
-        console.log('初始化剪切板失败:', err.message);
-      });
-  }
-}
-
-/**
- * 处理窗口获得焦点事件
- */
-function handleWindowFocus() {
-  // 用户切换回sidepanel时，检查剪切板
-  checkClipboard();
-}
-
-/**
- * 处理粘贴事件
- */
-function handlePaste(e) {
-  // 检查是否粘贴到了文本编辑区
-  if (e.target.id === 'text-edit-area') {
-    return; // 如果是在编辑区粘贴，不处理
-  }
-  
-  // 获取粘贴的文本
-  const pastedText = e.clipboardData?.getData('text');
-  if (pastedText && pastedText.trim()) {
-    e.preventDefault(); // 阻止默认粘贴行为
-    lastClipboardText = pastedText;
-    showClipboardDialog(pastedText);
-  }
-}
-
-/**
- * 检查剪切板变化
- */
-function checkClipboard() {
-  // 如果对话框正在显示，跳过检查
-  if (isDialogShowing) {
-    return;
-  }
-  
-  if (!navigator.clipboard || !navigator.clipboard.readText) {
-    return;
-  }
-  
-  navigator.clipboard.readText()
-    .then(text => {
-      if (text && text !== lastClipboardText && text.trim().length > 0) {
-        // 剪切板内容发生变化
-        lastClipboardText = text;
-        showClipboardDialog(text);
-      }
-    })
-    .catch(err => {
-      // 读取失败时静默处理
-      // console.log('读取剪切板失败:', err.message);
-    });
-}
-
-/**
- * 显示剪切板确认对话框
- */
-function showClipboardDialog(newText) {
-  const dialog = document.getElementById('confirm-dialog');
-  const overlay = document.getElementById('dialog-overlay');
-  const timerElement = document.getElementById('dialog-timer');
-  const yesBtn = document.getElementById('dialog-yes');
-  const noBtn = document.getElementById('dialog-no');
-  
-  // 标记对话框正在显示
-  isDialogShowing = true;
-  
-  // 显示对话框
-  dialog.classList.add('show');
-  overlay.classList.add('show');
-  
-  // 倒计时
-  let countdown = 10;
-  timerElement.innerText = `${countdown}秒后自动关闭`;
-  
-  const countdownInterval = setInterval(() => {
-    countdown--;
-    if (countdown > 0) {
-      timerElement.innerText = `${countdown}秒后自动关闭`;
-    } else {
-      clearInterval(countdownInterval);
-      closeDialog();
-    }
-  }, 1000);
-  
-  // 点击"是"按钮
-  yesBtn.onclick = function() {
-    clearInterval(countdownInterval);
-    closeDialog();
-    updateWithNewClipboard(newText);
-  };
-  
-  // 点击"否"按钮
-  noBtn.onclick = function() {
-    clearInterval(countdownInterval);
-    closeDialog();
-  };
-  
-  // 点击遮罩层关闭
-  overlay.onclick = function() {
-    clearInterval(countdownInterval);
-    closeDialog();
-  };
-}
-
-/**
- * 关闭对话框
- */
-function closeDialog() {
-  const dialog = document.getElementById('confirm-dialog');
-  const overlay = document.getElementById('dialog-overlay');
-  
-  dialog.classList.remove('show');
-  overlay.classList.remove('show');
-  
-  // 标记对话框已关闭
-  isDialogShowing = false;
-}
-
-/**
- * 使用新的剪切板内容更新翻译
- */
-function updateWithNewClipboard(newText) {
-  // 如果在编辑模式，先退出
-  if (isEditMode) {
-    isEditMode = false;
-    const toggleEditBtn = document.getElementById('toggle-edit-btn');
-    const retranslateBtn = document.getElementById('retranslate-btn');
-    const textEditArea = document.getElementById('text-edit-area');
-    
-    textEditArea.style.display = 'none';
-    retranslateBtn.style.display = 'none';
-    toggleEditBtn.innerText = '编辑文本';
-    toggleEditBtn.classList.remove('save-btn');
-    toggleEditBtn.classList.add('edit-btn');
-  }
-  
-  // 更新文本
-  const definitionWord = document.getElementById('definition-word');
-  definitionWord.style.display = 'flex';
-  
-  // 格式化并显示 - 使用原始的简单文本显示方式
-  const formattedText = formatText(newText);
-  definitionWord.innerText = formattedText;
-  
-  originalText = newText;
-  
-  // 清空之前的翻译（由于是新内容，清空所有翻译是合理的）
-  document.getElementById('words-container').innerText = '';
-  document.getElementById('definition-explain').value = '';
-  
-  // 重新翻译
-  baidu(formattedText);
-}
-
-// 页面卸载时清除定时器和监听器
-window.addEventListener('beforeunload', function() {
-  if (clipboardCheckInterval) {
-    clearInterval(clipboardCheckInterval);
-  }
-  window.removeEventListener('focus', handleWindowFocus);
-  document.removeEventListener('paste', handlePaste);
-});

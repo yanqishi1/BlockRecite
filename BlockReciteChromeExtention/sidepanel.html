@@ -4,316 +4,356 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dictionary Side Panel</title>
     <style>
+      /* 飞书简洁风格 - Sidepanel */
       body {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: stretch;
         height: 100vh;
         margin: 0;
-        background-color: #f5f5dc;
-        font-family: Arial, sans-serif;
-        padding: 20px;
+        background-color: #FFFFFF;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 0;
       }
+      
+      /* 头部样式 */
+      h1 {
+        color: #1F2329;
+        margin: 0;
+        padding: 16px 20px 12px 20px;
+        font-size: 20px;
+        font-weight: 600;
+        border-bottom: 1px solid #E5E7EB;
+        background-color: #FFFFFF;
+      }
+      
+      hr {
+        display: none;
+      }
+      
+      /* 主内容区 */
+      body > * {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+      
+      body > h1 {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      
       #definition-word {
         display: flex;
         flex-wrap: wrap;
         gap: 4px;
-        font-size: 20px;
+        font-size: 15px;
+        margin: 16px 0;
+        padding: 12px;
+        background: #FAFAFA;
+        border-radius: 4px;
+        min-height: 40px;
+        z-index: 10;
+        position: relative;
       }
+      
       .word-button {
-        border: none;
-        background: none;
+        border: 1px solid #E5E7EB;
+        background: #FFFFFF;
         font: inherit;
         cursor: pointer;
         display: inline-block;
-        transition: all 0.3s ease;
+        transition: border-color 0.2s;
         line-height: 1.5;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 15px;
+        color: #1F2329;
       }
+      
       .word-button:hover {
-        font-weight: bold;
-        color: black;
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        font-weight: normal;
+        color: #1F2329;
+        background-color: #FFFFFF;
+        border: 1px solid #799FB5;
+        border-radius: 4px;
+        box-shadow: none;
       }
+      
       .word-explain {
         display: flex;
         align-items: center;
-        margin-top: 15px;
-        gap: 10px;
+        margin-top: 8px;
+        gap: 8px;
       }
+      
       .word-explain p {
         margin: 0;
-        font-weight: 600;
-        color: #333;
-        min-width: 60px;
+        font-weight: 500;
+        font-size: 13px;
+        color: #646A73;
+        min-width: 40px;
       }
+      
       .word-explain-item {
         display: flex;
         align-items: center;
         background-color: white;
         padding: 8px;
-        border-radius: 5px;
-        transition: all 0.3s ease;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
+        transition: border-color 0.2s;
       }
+      
       .word-explain-item:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        transform: translateY(-1px);
+        box-shadow: none;
+        transform: none;
+        border-color: #799FB5;
       }
+      
       .word-explain-input {
-        width: 200px;
-        height: auto;
-        padding: 8px 12px;
-        font-size: 16px;
-        border: 2px solid #ddd;
-        border-radius: 5px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
+        transition: border-color 0.2s;
+        box-shadow: none;
+        background-color: #FAFAFA;
       }
+      
       .word-explain-input:focus {
-        border-color: #4CAF50;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        border-color: #799FB5;
+        box-shadow: none;
         outline: none;
       }
+      
       .word-explain-del {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        margin: 0 5px;
-        padding: 8px 15px;
-        background-color: #dc3545;
+        margin: 0;
+        padding: 0;
+        width: 28px;
+        height: 28px;
+        background-color: #F56C6C;
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        font-size: 12px;
+        transition: opacity 0.2s;
+        box-shadow: none;
       }
+      
       .word-explain-del:hover {
-        background-color: #c82333;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0.85;
+        transform: none;
+        box-shadow: none;
       }
+      
       .word-explain-del:active {
-        transform: translateY(0);
+        opacity: 0.7;
+        transform: none;
       }
+      
       #definition-explain {
         width: 100%;
-        padding: 12px;
-        font-size: 16px;
-        border: 2px solid #ccc;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: border-color 0.3s ease;
+        height: 64px;
+        padding: 8px 12px;
+        font-size: 13px;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
+        box-shadow: none;
+        transition: border-color 0.2s;
+        background-color: #FFFFFF;
+        resize: vertical;
       }
+      
       #definition-explain:focus {
-        border-color: #007bff;
+        border-color: #799FB5;
         outline: none;
+        box-shadow: none;
       }
+      
       #make-card {
-        padding: 10px 20px;
-        font-size: 16px;
+        width: auto;
+        min-width: 120px;
+        max-width: 200px;
+        height: 36px;
+        padding: 0 20px;
+        font-size: 14px;
+        font-weight: 500;
         color: white;
-        background-color: #4CAF50;
+        background-color: #799FB5;
         border: none;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        margin-top: 15px;
+        transition: opacity 0.2s;
+        box-shadow: none;
+        margin: 16px auto 0 auto;
+        display: block;
       }
+      
       #make-card:hover {
-        background-color: #45a049;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        opacity: 0.85;
+        transform: none;
+        box-shadow: none;
       }
+      
       #make-card:active {
-        transform: translateY(0);
+        opacity: 0.7;
+        transform: none;
       }
+      
       .checkbox-container {
         display: flex;
         align-items: center;
-        margin: 15px 0;
+        justify-content: center;
+        margin: 16px 0;
         gap: 8px;
       }
+      
       #front-type {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         cursor: pointer;
-        accent-color: #4CAF50;
+        accent-color: #799FB5;
+        border-radius: 3px;
       }
+      
       label {
-        font-size: 16px;
-        color: #333;
+        font-size: 14px;
+        color: #1F2329;
       }
-      h1 {
-        color: #2c3e50;
-        margin-bottom: 20px;
-        font-size: 28px;
-      }
-      hr {
-        border: none;
-        height: 2px;
-        background: linear-gradient(to right, transparent, #4CAF50, transparent);
-        margin: 20px 0;
-        width: 80%;
-      }
+      
       #select-a-word {
-        color: #666;
-        font-size: 16px;
-        margin: 10px 0;
+        color: #646A73;
+        font-size: 14px;
+        margin: 12px 0;
       }
+      
       input[type="text"] {
-        padding: 10px 15px;
-        border: 2px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-        transition: all 0.3s ease;
+        padding: 0 12px;
+        height: 32px;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
+        font-size: 13px;
+        transition: border-color 0.2s;
         width: 100%;
         box-sizing: border-box;
+        background-color: #FFFFFF;
       }
+      
       input[type="text"]:focus {
-        border-color: #4CAF50;
-        box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        border-color: #799FB5;
+        box-shadow: none;
         outline: none;
       }
+      
       /* 编辑区域样式 */
       #text-edit-area {
         width: 100%;
-        min-height: 200px;
-        padding: 15px;
-        border: 2px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-        font-family: Arial, sans-serif;
+        min-height: 120px;
+        padding: 12px;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         line-height: 1.6;
         resize: vertical;
         display: none;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
+        background-color: #FAFAFA;
       }
+      
       #text-edit-area:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        border-color: #799FB5;
+        box-shadow: none;
         outline: none;
       }
+      
       .control-buttons {
         display: flex;
-        gap: 10px;
-        margin-bottom: 15px;
+        gap: 8px;
+        margin: 16px 0 12px 0;
       }
+      
       .control-btn {
-        padding: 8px 16px;
-        font-size: 14px;
+        flex: 1;
+        height: 32px;
+        padding: 0 16px;
+        font-size: 13px;
+        font-weight: 500;
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 4px;
         cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        transition: opacity 0.2s;
+        box-shadow: none;
       }
+      
       .edit-btn {
-        background-color: #667eea;
+        background-color: #FFFFFF;
+        color: #799FB5;
+        border: 1px solid #799FB5;
       }
+      
       .edit-btn:hover {
-        background-color: #5568d3;
-        transform: translateY(-2px);
+        opacity: 0.85;
+        transform: none;
       }
+      
       .retranslate-btn {
-        background-color: #ff9800;
+        background-color: #FC9D5D;
       }
+      
       .retranslate-btn:hover {
-        background-color: #e68900;
-        transform: translateY(-2px);
+        opacity: 0.85;
+        transform: none;
       }
+      
       .save-btn {
-        background-color: #4CAF50;
+        background-color: #799FB5;
       }
+      
       .save-btn:hover {
-        background-color: #45a049;
-        transform: translateY(-2px);
+        opacity: 0.85;
+        transform: none;
       }
-      /* 确认对话框样式 */
-      .confirm-dialog {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 25px;
-        border-radius: 10px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-        z-index: 10000;
-        min-width: 300px;
-        display: none;
-      }
-      .confirm-dialog.show {
-        display: block;
-      }
-      .dialog-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 9999;
-        display: none;
-      }
-      .dialog-overlay.show {
-        display: block;
-      }
-      .dialog-title {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 15px;
-        color: #2c3e50;
-      }
-      .dialog-content {
-        margin-bottom: 20px;
-        color: #666;
-        line-height: 1.5;
-      }
-      .dialog-buttons {
+      
+      /* 单词释义容器样式 */
+      #words-container {
         display: flex;
-        gap: 10px;
-        justify-content: flex-end;
+        flex-direction: column;
+        gap: 8px;
       }
-      .dialog-btn {
-        padding: 8px 20px;
-        border: none;
-        border-radius: 5px;
+      
+      .word-explain-item {
+        padding: 8px;
+        background: white;
+        border: 1px solid #E5E7EB;
+        border-radius: 4px;
         cursor: pointer;
+        transition: border-color 0.2s, background-color 0.2s;
+      }
+      
+      .word-explain-item:hover {
+        background: #FAFAFA;
+        border-color: #799FB5;
+      }
+      
+      /* 标签样式 */
+      label {
         font-size: 14px;
-        transition: all 0.3s ease;
-      }
-      .dialog-btn-yes {
-        background-color: #4CAF50;
-        color: white;
-      }
-      .dialog-btn-yes:hover {
-        background-color: #45a049;
-      }
-      .dialog-btn-no {
-        background-color: #dc3545;
-        color: white;
-      }
-      .dialog-btn-no:hover {
-        background-color: #c82333;
-      }
-      .dialog-timer {
-        font-size: 12px;
-        color: #999;
-        margin-top: 10px;
-        text-align: right;
+        color: #1F2329;
+        font-weight: normal;
       }
     </style>
   </head>
 
   <body>
-    <h1>Block Recide</h1>
-    <hr/>
+    <h1>Block Recite</h1>
     <p id="select-a-word">Select a word to see the definition.</p>
     
     <!-- 控制按钮 -->
@@ -322,42 +362,32 @@
       <button class="control-btn retranslate-btn" id="retranslate-btn" style="display: none;">重新翻译</button>
     </div>
     
-    <!-- 剪切板提示和手动检查按钮 -->
-    <div id="clipboard-hint" style="display: none; background-color: #e3f2fd; padding: 10px; border-radius: 5px; margin-bottom: 10px; font-size: 13px; color: #1976d2; border: 1px solid #90caf9;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span>💡 提示：复制文字后按 <kbd style="background: white; padding: 2px 6px; border: 1px solid #ccc; border-radius: 3px;">Ctrl+V</kbd> 更新内容</span>
-        <button id="check-clipboard-btn" style="padding: 5px 12px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">检查剪切板</button>
-      </div>
-    </div>
-    
     <!-- 编辑区域 -->
     <textarea id="text-edit-area"></textarea>
     
-    <div>
-      <p id="definition-word"></p>
-      <input type="text" id="definition-explain" placeholder="Enter definition here...">
+    <!-- 选中的文本单词显示区域 -->
+    <div id="definition-word"></div>
+    
+    <!-- 翻译释义输入 -->
+    <div style="margin: 16px 0;">
+      <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #1F2329;">翻译释义</label>
+      <input type="text" id="definition-explain" placeholder="输入或编辑翻译...">
     </div>
-    <div id="words-container"></div>
+    
+    <!-- 单词释义列表 -->
+    <div style="margin: 16px 0;">
+      <label style="display: block; margin-bottom: 8px; font-size: 14px; font-weight: 500; color: #1F2329;">单词释义</label>
+      <div id="words-container"></div>
+    </div>
 
+    <!-- 音频选项 -->
     <div class="checkbox-container">
         <input id="front-type" type="checkbox">
         <label>音频</label>
     </div>
+    
+    <!-- Make Card按钮 -->
     <button id="make-card">Make Card</button>
-
-    <!-- 确认对话框 -->
-    <div class="dialog-overlay" id="dialog-overlay"></div>
-    <div class="confirm-dialog" id="confirm-dialog">
-      <div class="dialog-title">检测到剪切板变化</div>
-      <div class="dialog-content">
-        检测到剪切板有新内容，是否使用新内容重新翻译？
-      </div>
-      <div class="dialog-buttons">
-        <button class="dialog-btn dialog-btn-yes" id="dialog-yes">是</button>
-        <button class="dialog-btn dialog-btn-no" id="dialog-no">否</button>
-      </div>
-      <div class="dialog-timer" id="dialog-timer">10秒后自动关闭</div>
-    </div>
 
     <script src="js/trans_api/baidu_api.js"></script>
     <script src="sidepanel.js"></script>
