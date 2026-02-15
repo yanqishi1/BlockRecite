@@ -4,6 +4,7 @@ from server.service import card_service
 from server.service import ai_service
 from server.service import sentence_service
 from server.service import ai_evaluation_service
+from server.service.ai_service.deepseek_service import chat_completion_text
 import json
 from BlockRecite import settings
 import os
@@ -44,10 +45,53 @@ def trans_word(request):
             type = card_service.WORD
 
         translation = card_service.explain(word, type)
+
+        # 如果词典没有翻译，尝试用 DeepSeek 翻译
+        if type == card_service.WORD and (
+            not translation or
+            not translation.get('translation') or
+            translation.get('translation').strip() == ''
+        ):
+            translation = trans_word_by_ai(word)
+
         return HttpResponse(json.dumps({'code':0, 'message':'success','data':translation}),content_type="application/json; charset=utf-8")
     else:
         return HttpResponse(json.dumps({'code':0, 'message':'method not allowed'}))
 
+def trans_word_by_ai(word, model="deepseek"):
+    translation = None
+    prompt = f'请将单词 "{word}" 翻译成中文。要求：\n1. 只返回中文翻译，不要包含英文原文\n2. 如果单词拼写错误或不存在，返回空字符串\n3. 翻译格式参考：n. 意思1, 意思2'
+    if model == "deepseek":
+        ai_translation = chat_completion_text(
+            messages=[
+                {"role": "system", "content": "你是一位专业的英译中翻译助手。"},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.3,
+            max_tokens=200
+        )
+
+    # 如果 AI 返回了有效翻译，更新 translation
+    if ai_translation and ai_translation.strip():
+        if translation is None:
+            translation = {
+                "id": 0,
+                "word": word,
+                "sw": word,
+                "phonetic": "",
+                "definition": "",
+                "translation": ai_translation,
+                "pos": "",
+                "collins": 0,
+                "oxford": 0,
+                "tag": "",
+                "bnc": 0,
+                "frq": 0,
+                "exchange": "",
+                "detail": None,
+                "audio": ""
+            }
+    return translation
 
 
 '''

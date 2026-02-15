@@ -622,28 +622,52 @@ def get_sentence_cards(num=10, new_word_percent=0.5):
         return None
 
 
-def get_article_list(page=1, page_size=10, exam_type=None, article_type=None, 
+def get_article_list(page=1, page_size=10, exam_type=None, article_type=None,
                      difficulty=None, topic=None, tags=None):
     """
     获取文章列表 - 支持多种标签过滤
-    
+
     Args:
         page: 页码
         page_size: 每页数量
-        exam_type: 考试类型（ielts, cet4, cet6, 考研等）
-        article_type: 文章类型
-        difficulty: 难度等级
+        exam_type: 考试类型（ielts, cet4, cet6, 考研等）- 支持多选
+        article_type: 文章类型 - 支持多选
+        difficulty: 难度等级 - 支持多选
         topic: 话题分类
         tags: 标签列表，用于过滤包含这些标签的文章
     """
     queryset = Article.objects.all()
-    
+
+    # 支持多个考试类型筛选
     if exam_type:
-        queryset = queryset.filter(exam_type=exam_type)
+        exam_types = exam_type.split(',') if isinstance(exam_type, str) and ',' in exam_type else [exam_type]
+        exam_type_filter = Q()
+        for et in exam_types:
+            if et.strip():
+                exam_type_filter |= Q(exam_type=et.strip())
+        queryset = queryset.filter(exam_type_filter)
+
+    # 支持多个文章类型筛选
     if article_type:
-        queryset = queryset.filter(article_type=article_type)
+        article_types = article_type.split(',') if isinstance(article_type, str) and ',' in article_type else [article_type]
+        article_type_filter = Q()
+        for at in article_types:
+            if at.strip():
+                article_type_filter |= Q(article_type=at.strip())
+        queryset = queryset.filter(article_type_filter)
+
+    # 支持多个难度筛选
     if difficulty is not None:
-        queryset = queryset.filter(difficulty=difficulty)
+        difficulties = difficulty.split(',') if isinstance(difficulty, str) and ',' in difficulty else [difficulty]
+        difficulty_filter = Q()
+        for diff in difficulties:
+            try:
+                diff_value = int(diff.strip())
+                difficulty_filter |= Q(difficulty=diff_value)
+            except ValueError:
+                continue
+        queryset = queryset.filter(difficulty_filter)
+
     if topic:
         queryset = queryset.filter(topic__icontains=topic)
     if tags and isinstance(tags, list):

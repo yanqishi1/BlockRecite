@@ -1,28 +1,22 @@
 """
 AI 评测服务 - 用于评估用户翻译质量（使用 DeepSeek API）
 """
-import json
-import os
-from openai import OpenAI
-
-# DeepSeek API 配置（兼容 OpenAI 格式）
-# 请在环境变量中设置 DEEPSEEK_API_KEY，或在 .env 中配置
-API_KEY = "sk-c5f01930f0244f94827acedc31c64ffc"
-BASE_URL = "https://api.deepseek.com"
-MODEL = "deepseek-chat"
-
-client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+from server.service.ai_service.deepseek_service import (
+    chat_completion_json,
+    chat_completion_text,
+    _extract_json
+)
 
 
 def evaluate_translation(chinese, user_translation, reference_translation=None):
     """
     评估用户翻译质量
-    
+
     Args:
         chinese: 中文原文
         user_translation: 用户翻译的英文
         reference_translation: 参考译文（可选）
-    
+
     Returns:
         dict: 评测结果
         {
@@ -35,31 +29,23 @@ def evaluate_translation(chinese, user_translation, reference_translation=None):
     """
     try:
         prompt = build_evaluation_prompt(chinese, user_translation, reference_translation)
-        
-        req = {
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "你是一位专业的英语写作批改老师，擅长评估中译英翻译质量。请严格按照 JSON 格式返回结果。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.3,
-            "max_tokens": 2000
-        }
-        
-        resp = client.chat.completions.create(**req)
-        result_text = resp.choices[0].message.content or ""
-        
-        # 解析 JSON 结果
-        evaluation_result = parse_evaluation_result(result_text)
-        
+
+        messages = [
+            {
+                "role": "system",
+                "content": "你是一位专业的英语写作批改老师，擅长评估中译英翻译质量。请严格按照 JSON 格式返回结果。"
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+
+        result = chat_completion_json(messages, temperature=0.3, max_tokens=2000)
+        evaluation_result = parse_evaluation_result(result)
+
         return evaluation_result
-        
+
     except Exception as e:
         print(f"AI 评测失败: {e}")
         # 返回基础评测结果
@@ -120,86 +106,63 @@ rating 定义：
     return prompt
 
 
-def parse_evaluation_result(result_text):
+def parse_evaluation_result(result):
     """
-    解析 AI 返回的评测结果
+    解析/验证 AI 返回的评测结果
+
+    Args:
+        result: 已解析的 JSON 对象（dict）或 None
+
+    Returns:
+        dict: 验证后的评测结果
     """
-    try:
-        # 尝试提取 JSON 部分
-        # AI 可能会返回 markdown 格式的代码块
-        json_str = result_text
-        
-        # 如果包含 ```json 代码块，提取其中的内容
-        if '```json' in result_text:
-            json_str = result_text.split('```json')[1].split('```')[0].strip()
-        elif '```' in result_text:
-            json_str = result_text.split('```')[1].split('```')[0].strip()
-        
-        result = json.loads(json_str)
-        
-        # 验证必要字段
-        default_result = {
-            'has_error': False,
-            'error_details': [],
-            'rating': 'unknown',
-            'optimized_version': '',
-            'learning_tip': ''
-        }
-        
-        # 合并结果
-        for key in default_result:
-            if key in result:
-                default_result[key] = result[key]
-        
-        # 确保 error_details 是列表
-        if not isinstance(default_result['error_details'], list):
-            default_result['error_details'] = []
-        
-        # 验证 rating 值
-        valid_ratings = ['excellent', 'good', 'acceptable', 'incorrect', 'unknown']
-        if default_result['rating'] not in valid_ratings:
-            default_result['rating'] = 'unknown'
-        
+    # 验证必要字段
+    default_result = {
+        'has_error': False,
+        'error_details': [],
+        'rating': 'unknown',
+        'optimized_version': '',
+        'learning_tip': ''
+    }
+
+    # 如果解析失败（result 为 None）
+    if not result or not isinstance(result, dict):
         return default_result
-        
-    except json.JSONDecodeError as e:
-        print(f"JSON 解析失败: {e}")
-        print(f"原始结果: {result_text}")
-        return {
-            'has_error': False,
-            'error_details': [],
-            'rating': 'unknown',
-            'optimized_version': '',
-            'learning_tip': '评测结果解析失败，请重试'
-        }
-    except Exception as e:
-        print(f"解析评测结果失败: {e}")
-        return {
-            'has_error': False,
-            'error_details': [],
-            'rating': 'unknown',
-            'optimized_version': '',
-            'learning_tip': f'评测结果处理失败: {str(e)}'
-        }
+
+    # 合并结果
+    for key in default_result:
+        if key in result:
+            default_result[key] = result[key]
+
+    # 确保 error_details 是列表
+    if not isinstance(default_result['error_details'], list):
+        default_result['error_details'] = []
+
+    # 验证 rating 值
+    valid_ratings = ['excellent', 'good', 'acceptable', 'incorrect', 'unknown']
+    if default_result['rating'] not in valid_ratings:
+        default_result['rating'] = 'unknown'
+
+    return default_result
 
 
 def batch_translate_sentences(sentences):
     """
     批量翻译句子（英文翻译成中文）
     用于智能分句后的自动翻译
-    
+
     Args:
         sentences: ['英文句子1', '英文句子2', ...]
-    
+
     Returns:
         ['中文翻译1', '中文翻译2', ...]
     """
     if not sentences:
         return []
-    
+
     try:
         sentences_text = "\n".join([f"{i+1}. {s}" for i, s in enumerate(sentences)])
-        
+
         prompt = f'''请将以下英文句子翻译成中文：
 
 {sentences_text}
@@ -218,36 +181,21 @@ def batch_translate_sentences(sentences):
 2. 必须返回合法的 JSON 格式
 3. 保持原文顺序，一一对应
 4. 只返回中文翻译，不要包含英文原文'''
-        
-        req = {
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "你是一位专业的翻译助手，擅长英译中。请严格按照要求的 JSON 格式返回结果。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.3,
-            "max_tokens": 3000
-        }
-        
-        resp = client.chat.completions.create(**req)
-        result_text = (resp.choices[0].message.content or "").strip()
-        
-        # 解析 JSON
-        json_str = result_text
-        if '```json' in result_text:
-            json_str = result_text.split('```json')[1].split('```')[0].strip()
-        elif '```' in result_text:
-            json_str = result_text.split('```')[1].split('```')[0].strip()
-        
-        result = json.loads(json_str)
-        
-        if 'translations' in result and isinstance(result['translations'], list):
+
+        messages = [
+            {
+                "role": "system",
+                "content": "你是一位专业的翻译助手，擅长英译中。请严格按照要求的 JSON 格式返回结果。"
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+
+        result = chat_completion_json(messages, temperature=0.3, max_tokens=3000)
+
+        if result and 'translations' in result and isinstance(result['translations'], list):
             translations = result['translations']
             # 确保翻译数量和原文数量一致
             if len(translations) == len(sentences):
@@ -260,7 +208,7 @@ def batch_translate_sentences(sentences):
         else:
             # 返回原文作为后备
             return sentences
-            
+
     except Exception as e:
         print(f"批量翻译失败: {e}")
         # 返回原文作为后备
@@ -272,27 +220,22 @@ def simple_translate(text, from_lang='en', to_lang='zh'):
     简单翻译单个句子
     """
     try:
-        prompt = f'请将以下{text}翻译成{"中文" if to_lang == "zh" else "英文"}，只返回翻译结果，不要解释：\n\n{text}'
-        
-        req = {
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "你是一位专业的翻译助手。"
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.3,
-            "max_tokens": 500
-        }
-        
-        resp = client.chat.completions.create(**req)
-        return (resp.choices[0].message.content or "").strip()
-        
+        prompt = f'请将以下内容翻译成{"中文" if to_lang == "zh" else "英文"}，只返回翻译结果，不要解释：\n\n{text}'
+
+        messages = [
+            {
+                "role": "system",
+                "content": "你是一位专业的翻译助手。"
+            },
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
+
+        result = chat_completion_text(messages, temperature=0.3, max_tokens=500)
+        return result or text
+
     except Exception as e:
         print(f"翻译失败: {e}")
         return text
@@ -331,21 +274,17 @@ def generate_essay_from_topic(topic, exam_type='ielts', title=None, word_count_t
 1. 只输出范文正文，不要输出题目、解释或中文。
 2. 使用完整、地道的英文句子，适合作为中译英练习材料。
 3. 段落清晰，句号、问号、感叹号结尾的完整句子。'''
-        req = {
-            "model": MODEL,
-            "messages": [
-                {
-                    "role": "system",
-                    "content": "你是一位专业的英语写作教师，擅长各类考试范文写作。只输出英文范文正文，不要任何解释或中文。"
-                },
-                {"role": "user", "content": prompt}
-            ],
-            "temperature": 0.6,
-            "max_tokens": 2000
-        }
-        resp = client.chat.completions.create(**req)
-        content = (resp.choices[0].message.content or "").strip()
-        return content
+
+        messages = [
+            {
+                "role": "system",
+                "content": "你是一位专业的英语写作教师，擅长各类考试范文写作。只输出英文范文正文，不要任何解释或中文。"
+            },
+            {"role": "user", "content": prompt}
+        ]
+
+        return chat_completion_text(messages, temperature=0.6, max_tokens=2000)
+
     except Exception as e:
         print(f"AI 生成范文失败: {e}")
         return ""
